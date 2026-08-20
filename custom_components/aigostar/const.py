@@ -39,6 +39,15 @@ PROP_MESH_SCENE      = "mode"
 
 NET_TYPE_BT          = "NET_BT"
 
+# Some Wi-Fi products use the lower-camelCase identifiers despite not being
+# mesh devices (confirmed on the "A60 RGB CCT" bulb, productKey a1tgw5jbxTS),
+# so netType alone does not determine the naming. The light entity starts from
+# the transport default and refines its identifiers at runtime by matching the
+# properties the device actually reports (first candidate present wins).
+PROP_SWITCH_CANDIDATES     = (PROP_SWITCH, PROP_MESH_SWITCH)
+PROP_BRIGHTNESS_CANDIDATES = (PROP_BRIGHTNESS, PROP_MESH_BRIGHTNESS)
+PROP_COLOR_TEMP_CANDIDATES = (PROP_COLOR_TEMP, PROP_MESH_COLOR_TEMP)
+
 # BT Mesh bulbs do not share the Wi-Fi colour identifier: Alibaba's mesh model
 # mirrors the Bluetooth SIG Light HSL model, so the identifier and its ranges
 # vary per product. The colour property is detected at runtime from the TSL

@@ -60,6 +60,9 @@ from .const import (
     PROP_MESH_BRIGHTNESS,
     PROP_MESH_COLOR_TEMP,
     PROP_MESH_LIGHT_MODE,
+    PROP_SWITCH_CANDIDATES,
+    PROP_BRIGHTNESS_CANDIDATES,
+    PROP_COLOR_TEMP_CANDIDATES,
     NET_TYPE_BT,
     SCAN_INTERVAL_SECONDS,
 )
@@ -312,12 +315,32 @@ class AigostarLight(LightEntity):
         self._attr_supported_color_modes = self._build_supported_color_modes()
         _LOGGER.info("Aigostar %s", self.describe_color_profile())
 
+    @staticmethod
+    def _pick_key(props: dict, candidates: tuple[str, ...], current: str) -> str:
+        """Return the first candidate identifier present in the reported props,
+        falling back to the current value when none match."""
+        for candidate in candidates:
+            if candidate in props:
+                return candidate
+        return current
+
+    def _resolve_prop_keys(self, props: dict) -> None:
+        """Refine the TSL identifiers from what the device actually reports.
+
+        The netType-based defaults are only a first guess: some Wi-Fi products
+        (e.g. the A60 RGB CCT bulb) use the lower-camelCase mesh identifiers.
+        """
+        self._prop_switch = self._pick_key(props, PROP_SWITCH_CANDIDATES, self._prop_switch)
+        self._prop_brightness = self._pick_key(props, PROP_BRIGHTNESS_CANDIDATES, self._prop_brightness)
+        self._prop_color_temp = self._pick_key(props, PROP_COLOR_TEMP_CANDIDATES, self._prop_color_temp)
+
     def _apply_props(self, props: dict) -> None:
         _LOGGER.debug(
             "Aigostar [%s] Applying properties (is_bt=%s): %s",
             self._attr_unique_id, self._is_bt, props,
         )
         self._ensure_color_spec(props)
+        self._resolve_prop_keys(props)
 
         if self._prop_switch in props:
             self._is_on = bool(props[self._prop_switch])
