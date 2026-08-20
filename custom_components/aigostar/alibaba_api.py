@@ -530,9 +530,11 @@ def refresh_iot_token_sync(
     refresh_token: str, identity_id: str, app_key: str, app_secret: str,
 ) -> dict:
     """Renew the iotToken using the refreshToken."""
+    # checkOrRefreshSession requires its params wrapped in a 'request' key,
+    # like createSessionByAuthCode; without it the API returns code 20050.
     result = _call_sync(
         PATH_REFRESH,
-        {"refreshToken": refresh_token, "identityId": identity_id},
+        {"request": {"refreshToken": refresh_token, "identityId": identity_id, "appKey": app_key}},
         app_key, app_secret, iot_token=None, api_ver="1.0.4",
     )
     data = result.get("data", {})
