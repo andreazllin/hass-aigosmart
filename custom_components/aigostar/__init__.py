@@ -29,7 +29,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["light"]
+PLATFORMS = ["light", "fan", "number", "switch"]
 TOKEN_REFRESH_INTERVAL = timedelta(hours=1)
 DEVICE_SYNC_INTERVAL = timedelta(minutes=5)
 

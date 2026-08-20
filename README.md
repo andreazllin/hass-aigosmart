@@ -18,6 +18,28 @@ Control your Aigostar lights directly from Home Assistant — no local flashing 
 - **Email verification** support (when the server requires a security code)
 - **Multilingual UI** — English and Italian translations included
 
+
+## Fans
+
+Aigostar smart fans on the same AigoSmart account are supported as well. They are
+detected automatically (`categoryKey: fan`) and exposed as a proper `fan` entity
+instead of an unusable light.
+
+| Control | Entity | TSL property |
+|---|---|---|
+| On / off, speed 1-3 | `fan.*` | `powerstate`, `windspeed` |
+| Preset modes: Normal, Natural, Sleep | `fan.*` | `mode` |
+| Left/right swing | `fan.*` | `angleAutoLROnOff` |
+| Auto-off timer, 0-24 h | `number.*` | `appointmentClosingTime` |
+| Key beep | `switch.*` | `buzzerSwitch` |
+
+The fan also reports `CuTemperature`. It is **not** exposed: the probe sits next to
+the motor and reads its warm air, not the room temperature.
+
+Verified on a 5-blade Aigostar tower fan (`productKey a1mZFNZz7pq`). Other fans using
+the same TSL should work; open an issue with the output of `/thing/tsl/get` if yours
+differs.
+
 ## Supported Devices
 
 | Device | Chipset | Protocol | Status |

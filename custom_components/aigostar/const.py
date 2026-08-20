@@ -69,3 +69,15 @@ AIGO_BRIGHT_MIN = 1
 AIGO_BRIGHT_MAX = 100
 
 SCAN_INTERVAL_SECONDS = 30
+
+# TSL properties for Aigostar fans (captured via /thing/tsl/get on
+# productKey a1mZFNZz7pq, categoryKey "fan")
+PROP_FAN_POWER     = "powerstate"              # bool  0=off 1=on
+PROP_FAN_SPEED     = "windspeed"               # enum  1|2|3
+PROP_FAN_MODE      = "mode"                    # enum  0=normal 1=natural 2=sleep
+PROP_FAN_OSCILLATE = "angleAutoLROnOff"        # bool  left/right auto swing
+PROP_FAN_TIMER     = "appointmentClosingTime"  # int   0-24 h auto-off
+PROP_FAN_BUZZER    = "buzzerSwitch"            # bool  key beep
+
+FAN_SPEEDS = [1, 2, 3]
+FAN_PRESET_MODES = {0: "Normal", 1: "Natural", 2: "Sleep"}
