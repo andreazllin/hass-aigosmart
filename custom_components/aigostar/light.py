@@ -21,6 +21,7 @@ model at setup time rather than hard-coded — see color_model.py.
 from __future__ import annotations
 
 import logging
+import time
 from datetime import timedelta
 from typing import Any
 
@@ -70,6 +71,12 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(seconds=SCAN_INTERVAL_SECONDS)
+
+# How long (seconds) to suppress polling after a command. The cloud reports
+# stale property values for a while after a set, and HA force-polls the entity
+# right after each service call — without this the optimistic state written by
+# turn_on/turn_off is immediately reverted.
+_POST_COMMAND_SKIP_SECS = 90
 
 
 def _tsl_cache_key(dev: dict) -> str:
@@ -211,6 +218,7 @@ class AigostarLight(LightEntity):
         self._mode_known:   bool = False
         self._hs_color:     tuple[float, float] = (0.0, 0.0)
         self._available:    bool = online
+        self._skip_until:   float = 0.0  # Unix timestamp; skip polls until then
 
         _LOGGER.debug(
             "Aigostar [%s] Initialized light entity. Name: '%s', is_bt: %s, netType: '%s', "
@@ -397,6 +405,8 @@ class AigostarLight(LightEntity):
             )
 
     def update(self) -> None:
+        if time.time() < self._skip_until:
+            return
         try:
             props = self._client.get_properties_sync()
             self._apply_props(props)
@@ -480,6 +490,7 @@ class AigostarLight(LightEntity):
 
             self._is_on     = True
             self._available = True
+            self._skip_until = time.time() + _POST_COMMAND_SKIP_SECS
 
         except Exception as exc:
             _LOGGER.error("Aigostar turn_on failed [%s]: %s", self._attr_unique_id, exc)
@@ -496,6 +507,7 @@ class AigostarLight(LightEntity):
             self._client.set_properties_sync(items)
             self._is_on     = False
             self._available = True
+            self._skip_until = time.time() + _POST_COMMAND_SKIP_SECS
         except Exception as exc:
             _LOGGER.error("Aigostar turn_off failed [%s]: %s", self._attr_unique_id, exc)
             self._available = False
