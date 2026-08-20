@@ -38,7 +38,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .alibaba_api import AlibabaIoTClient, TokenExpiredError, get_tsl_sync
-from .helpers import is_fan_device, register_for_token_refresh
+from .helpers import is_fan_device, is_kettle_device, register_for_token_refresh
 from .color_model import (
     ColorSpec,
     as_source_snippet,
@@ -130,9 +130,9 @@ async def async_setup_entry(
         if dev.get("categoryKey") == "gateway" or dev.get("category") == "gateway":
             continue
 
-        # Fans are handled by fan.py; without this they would show up
-        # as unusable light entities
-        if is_fan_device(dev):
+        # Fans and kettles are handled by their own platforms; without this
+        # they would show up as unusable light entities
+        if is_fan_device(dev) or is_kettle_device(dev):
             continue
 
         iot_id = dev.get("iotId", "")

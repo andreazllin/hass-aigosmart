@@ -21,3 +21,13 @@ def is_fan_device(dev: dict) -> bool:
     category = (dev.get("categoryKey") or "").strip().lower()
     product = (dev.get("productName") or "").strip().lower()
     return category == "fan" or product.startswith("fan")
+
+
+def is_kettle_device(dev: dict) -> bool:
+    """Return True when the account device is a kettle.
+
+    Also used by light.py so kettles do not get a bogus light entity.
+    """
+    category = (dev.get("categoryKey") or "").strip().lower()
+    product = (dev.get("productName") or "").strip().lower()
+    return category == "kettle" or "kettle" in product or "bouilloire" in product

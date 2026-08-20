@@ -81,3 +81,9 @@ PROP_FAN_BUZZER    = "buzzerSwitch"            # bool  key beep
 
 FAN_SPEEDS = [1, 2, 3]
 FAN_PRESET_MODES = {0: "Normal", 1: "Natural", 2: "Sleep"}
+
+# TSL properties for Aigostar smart kettles
+PROP_KETTLE_SWITCH    = "HeatingSwitch"       # bool 0/1
+PROP_KETTLE_TEMP      = "temperature"         # int (current temp, °C)
+PROP_KETTLE_TARGET    = "Target_temperature"  # int (target temp, °C)
+PROP_KETTLE_KEEP_WARM = "heatpreservation"    # bool 0/1
