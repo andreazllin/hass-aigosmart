@@ -29,6 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 BASE_URL     = "https://eu-central-1.api-iot.aliyuncs.com"
 PATH_GET     = "/thing/properties/get"
 PATH_SET     = "/thing/properties/set"
+PATH_TSL     = "/thing/tsl/get"
 PATH_DEVICES = "/uc/listBindingByAccount"
 PATH_CREATE_SESSION = "/account/createSessionByAuthCode"
 PATH_REFRESH = "/account/checkOrRefreshSession"
@@ -556,6 +557,23 @@ def list_devices_sync(app_key: str, app_secret: str, iot_token: str) -> list[dic
         app_key, app_secret, iot_token, api_ver="1.0.8",
     )
     return result.get("data", {}).get("data", [])
+
+
+def get_tsl_sync(app_key: str, app_secret: str, iot_token: str, iot_id: str) -> dict:
+    """
+    Fetch the TSL model (property identifiers, data types and ranges) for the
+    product a device belongs to.
+
+    The endpoint keys off iotId, not productKey — querying by productKey fails
+    with code 20050 "iotId required".
+    """
+    if not iot_id:
+        raise ValueError("get_tsl_sync requires an iotId")
+
+    result = _call_sync(
+        PATH_TSL, {"iotId": iot_id}, app_key, app_secret, iot_token, api_ver="1.0.2",
+    )
+    return result.get("data", {})
 
 
 class AlibabaIoTClient:
