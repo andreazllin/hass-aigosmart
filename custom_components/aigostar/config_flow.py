@@ -15,7 +15,16 @@ from .alibaba_api import (
     list_devices_sync,
     send_verification_code_sync,
 )
-from .const import APP_KEY, APP_SECRET, CONF_EMAIL, CONF_PASSWORD, DOMAIN
+from .const import (
+    APP_KEY,
+    APP_SECRET,
+    CONF_EMAIL,
+    CONF_IDENTITY_ID,
+    CONF_IOT_TOKEN,
+    CONF_PASSWORD,
+    CONF_REFRESH_TOKEN,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -122,5 +131,11 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_create_entry(
             title=f"Aigostar ({len(devices)} lights)",
-            data=user_input,
+            data={
+                **user_input,
+                # Store the session so setup can skip the full login
+                CONF_IOT_TOKEN: session.get("iotToken", ""),
+                CONF_REFRESH_TOKEN: session.get("refreshToken", ""),
+                CONF_IDENTITY_ID: session.get("identityId", ""),
+            },
         )

@@ -16,7 +16,16 @@ from .alibaba_api import (
     list_devices_sync,
     refresh_iot_token_sync,
 )
-from .const import APP_KEY, APP_SECRET, CONF_EMAIL, CONF_PASSWORD, DOMAIN
+from .const import (
+    APP_KEY,
+    APP_SECRET,
+    CONF_EMAIL,
+    CONF_IDENTITY_ID,
+    CONF_IOT_TOKEN,
+    CONF_PASSWORD,
+    CONF_REFRESH_TOKEN,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,31 +33,89 @@ PLATFORMS = ["light"]
 TOKEN_REFRESH_INTERVAL = timedelta(hours=1)
 DEVICE_SYNC_INTERVAL = timedelta(minutes=5)
 
+# Internal keys used to persist token metadata across restarts
+_CONF_TOKEN_EXPIRE = "token_expire"
+_CONF_TOKEN_ISSUED_AT = "token_issued_at"
+
 SERVICE_SYNC = "sync_devices"
 SERVICE_DUMP_TSL = "dump_tsl"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     data = dict(entry.data)
-    email = data[CONF_EMAIL]
-    password = data[CONF_PASSWORD]
+    email = data.get(CONF_EMAIL, "")
+    password = data.get(CONF_PASSWORD, "")
 
-    # Full login
-    session = await hass.async_add_executor_job(
-        full_login_sync, email, password, APP_KEY, APP_SECRET,
-    )
+    def _persist_tokens(
+        iot_token: str, refresh_token: str, identity_id: str,
+        token_expire: int, token_created: float,
+    ) -> None:
+        """Write the session tokens back to the config entry so they survive restarts."""
+        hass.config_entries.async_update_entry(
+            entry,
+            data={
+                **entry.data,
+                CONF_IOT_TOKEN: iot_token,
+                CONF_REFRESH_TOKEN: refresh_token,
+                CONF_IDENTITY_ID: identity_id,
+                _CONF_TOKEN_EXPIRE: token_expire,
+                _CONF_TOKEN_ISSUED_AT: token_created,
+            },
+        )
 
-    iot_token = session["iotToken"]
-    refresh_token = session.get("refreshToken", "")
-    identity_id = session.get("identityId", "")
-    token_expire = int(session.get("iotTokenExpire", 7200))
-    token_created = time.time()
+    # Try the persisted session first so a restart does not need a full re-login
+    iot_token = data.get(CONF_IOT_TOKEN, "")
+    refresh_token = data.get(CONF_REFRESH_TOKEN, "")
+    identity_id = data.get(CONF_IDENTITY_ID, "")
+    token_expire = int(data.get(_CONF_TOKEN_EXPIRE, 7200))
+    token_created = float(data.get(_CONF_TOKEN_ISSUED_AT) or time.time())
 
-    # Discover devices
-    devices = await hass.async_add_executor_job(
-        list_devices_sync, APP_KEY, APP_SECRET, iot_token,
-    )
-    _LOGGER.info("Aigostar: login OK, %d devices discovered", len(devices))
+    devices = None
+    if iot_token:
+        try:
+            devices = await hass.async_add_executor_job(
+                list_devices_sync, APP_KEY, APP_SECRET, iot_token,
+            )
+            _LOGGER.info("Aigostar: stored iotToken valid, %d devices discovered", len(devices))
+        except Exception as exc:
+            _LOGGER.info("Aigostar: stored iotToken rejected (%s), trying refresh", exc)
+            if refresh_token and identity_id:
+                try:
+                    new_session = await hass.async_add_executor_job(
+                        refresh_iot_token_sync,
+                        refresh_token, identity_id, APP_KEY, APP_SECRET,
+                    )
+                    iot_token = new_session["iotToken"]
+                    refresh_token = new_session.get("refreshToken", refresh_token)
+                    identity_id = new_session.get("identityId", identity_id)
+                    token_expire = int(new_session.get("iotTokenExpire", 7200))
+                    token_created = time.time()
+                    devices = await hass.async_add_executor_job(
+                        list_devices_sync, APP_KEY, APP_SECRET, iot_token,
+                    )
+                    _persist_tokens(iot_token, refresh_token, identity_id, token_expire, token_created)
+                    _LOGGER.info("Aigostar: token refreshed, %d devices discovered", len(devices))
+                except Exception as exc2:
+                    _LOGGER.info("Aigostar: token refresh failed (%s), falling back to full login", exc2)
+
+    if devices is None:
+        # Full login
+        session = await hass.async_add_executor_job(
+            full_login_sync, email, password, APP_KEY, APP_SECRET,
+        )
+
+        iot_token = session["iotToken"]
+        refresh_token = session.get("refreshToken", "")
+        identity_id = session.get("identityId", "")
+        token_expire = int(session.get("iotTokenExpire", 7200))
+        token_created = time.time()
+
+        # Discover devices
+        devices = await hass.async_add_executor_job(
+            list_devices_sync, APP_KEY, APP_SECRET, iot_token,
+        )
+        _persist_tokens(iot_token, refresh_token, identity_id, token_expire, token_created)
+        _LOGGER.info("Aigostar: login OK, %d devices discovered", len(devices))
 
     # Shared state
     entry_data = {
@@ -97,6 +164,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ed["identity_id"] = new_session.get("identityId", ed["identity_id"])
             ed["token_expire"] = int(new_session.get("iotTokenExpire", 7200))
             ed["token_created"] = time.time()
+            _persist_tokens(
+                new_token, ed["refresh_token"], ed["identity_id"],
+                ed["token_expire"], ed["token_created"],
+            )
 
             for entity in hass.data.get(f"{DOMAIN}_entities", {}).get(entry.entry_id, []):
                 entity.update_token(new_token)
@@ -117,6 +188,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 ed["identity_id"] = new_session.get("identityId", "")
                 ed["token_expire"] = int(new_session.get("iotTokenExpire", 7200))
                 ed["token_created"] = time.time()
+                _persist_tokens(
+                    new_token, ed["refresh_token"], ed["identity_id"],
+                    ed["token_expire"], ed["token_created"],
+                )
 
                 for entity in hass.data.get(f"{DOMAIN}_entities", {}).get(entry.entry_id, []):
                     entity.update_token(new_token)

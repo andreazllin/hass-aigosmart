@@ -16,6 +16,12 @@ APP_SECRET = "41fd4a1eb18fa7ace5e2abbbe3867f93"
 CONF_EMAIL       = "email"
 CONF_PASSWORD    = "password"
 
+# Persisted session tokens (stored in the config entry so a restart does not
+# need a full re-login; refreshed tokens are written back on every renewal)
+CONF_IOT_TOKEN     = "iot_token"
+CONF_REFRESH_TOKEN = "refresh_token"
+CONF_IDENTITY_ID   = "identity_id"
+
 # TSL properties for Aigostar TG7100C (captured via /thing/tsl/get)
 PROP_SWITCH     = "LightSwitch"       # bool  0=off 1=on
 PROP_BRIGHTNESS = "Brightness"        # int   1-100 (percentage)
