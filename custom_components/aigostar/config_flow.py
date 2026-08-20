@@ -1,4 +1,4 @@
-"""Config flow for Aigostar — email + password login."""
+"""Config flow for Aigostar — email + password login, or manual token entry."""
 from __future__ import annotations
 
 import logging
@@ -13,6 +13,7 @@ from .alibaba_api import (
     NeedSecurityCodeError,
     full_login_sync,
     list_devices_sync,
+    refresh_iot_token_sync,
     send_verification_code_sync,
 )
 from .const import (
@@ -35,6 +36,14 @@ STEP_USER_SCHEMA = vol.Schema(
     }
 )
 
+STEP_TOKEN_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_IOT_TOKEN): str,
+        vol.Required(CONF_REFRESH_TOKEN): str,
+        vol.Required(CONF_IDENTITY_ID): str,
+    }
+)
+
 STEP_VERIFY_SCHEMA = vol.Schema(
     {
         vol.Required("security_code"): str,
@@ -52,6 +61,13 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._password: str = ""
 
     async def async_step_user(self, user_input: dict | None = None) -> FlowResult:
+        """First step: choose between account login and manual token entry."""
+        return self.async_show_menu(
+            step_id="user",
+            menu_options=["login", "token_bypass"],
+        )
+
+    async def async_step_login(self, user_input: dict | None = None) -> FlowResult:
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -85,8 +101,66 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
 
         return self.async_show_form(
-            step_id="user",
+            step_id="login",
             data_schema=STEP_USER_SCHEMA,
+            errors=errors,
+        )
+
+    async def async_step_token_bypass(self, user_input: dict | None = None) -> FlowResult:
+        """Accept a session captured externally (e.g. with mitmproxy from the
+        AigoSmart app) — a workaround for accounts stuck on NEED_SECURITY_CODE."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            iot_token = user_input[CONF_IOT_TOKEN].strip()
+            refresh_token = user_input[CONF_REFRESH_TOKEN].strip()
+            identity_id = user_input[CONF_IDENTITY_ID].strip()
+
+            devices = None
+            try:
+                devices = await self.hass.async_add_executor_job(
+                    list_devices_sync, APP_KEY, APP_SECRET, iot_token,
+                )
+                _LOGGER.info("Aigostar token entry: %d devices found", len(devices))
+            except Exception as exc:
+                # Token might already be expired — try the refreshToken
+                _LOGGER.info("Aigostar: provided iotToken rejected (%s), trying refresh", exc)
+                try:
+                    new_session = await self.hass.async_add_executor_job(
+                        refresh_iot_token_sync,
+                        refresh_token, identity_id, APP_KEY, APP_SECRET,
+                    )
+                    iot_token = new_session["iotToken"]
+                    refresh_token = new_session.get("refreshToken", refresh_token)
+                    identity_id = new_session.get("identityId", identity_id)
+                    devices = await self.hass.async_add_executor_job(
+                        list_devices_sync, APP_KEY, APP_SECRET, iot_token,
+                    )
+                    _LOGGER.info(
+                        "Aigostar token entry (after refresh): %d devices found", len(devices),
+                    )
+                except Exception as exc2:
+                    _LOGGER.warning("Aigostar token entry failed: %s", exc2)
+                    errors["base"] = "invalid_token"
+
+            if devices is not None:
+                await self.async_set_unique_id("aigostar_account")
+                self._abort_if_unique_id_configured()
+
+                return self.async_create_entry(
+                    title=f"Aigostar ({len(devices)} lights)",
+                    data={
+                        CONF_EMAIL: "",
+                        CONF_PASSWORD: "",
+                        CONF_IOT_TOKEN: iot_token,
+                        CONF_REFRESH_TOKEN: refresh_token,
+                        CONF_IDENTITY_ID: identity_id,
+                    },
+                )
+
+        return self.async_show_form(
+            step_id="token_bypass",
+            data_schema=STEP_TOKEN_SCHEMA,
             errors=errors,
         )
 

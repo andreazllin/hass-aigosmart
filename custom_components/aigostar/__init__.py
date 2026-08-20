@@ -99,6 +99,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.info("Aigostar: token refresh failed (%s), falling back to full login", exc2)
 
     if devices is None:
+        if not email or not password:
+            _LOGGER.error(
+                "Aigostar: stored tokens are no longer valid and the entry has no "
+                "account credentials — re-add the integration with fresh tokens"
+            )
+            return False
+
         # Full login
         session = await hass.async_add_executor_job(
             full_login_sync, email, password, APP_KEY, APP_SECRET,

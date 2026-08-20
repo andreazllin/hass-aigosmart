@@ -3,10 +3,26 @@
     "step": {
       "user": {
         "title": "Aggiungi lampadine Aigostar",
-        "description": "Inserisci le credenziali del tuo account AigoSmart.\n\nTutte le lampadine collegate verranno scoperte automaticamente.\nIl refresh del token viene gestito in automatico.",
+        "menu_options": {
+          "login": "Email + password (login standard)",
+          "token_bypass": "Inserisci i token di sessione manualmente"
+        }
+      },
+      "login": {
+        "title": "Accedi con l'account AigoSmart",
+        "description": "Inserisci le credenziali del tuo account AigoSmart.\n\nTutte le lampadine collegate verranno scoperte automaticamente.",
         "data": {
-          "email":    "Email (account AigoSmart)",
+          "email": "Email (account AigoSmart)",
           "password": "Password"
+        }
+      },
+      "token_bypass": {
+        "title": "Inserimento manuale dei token",
+        "description": "Inserisci una sessione catturata dall'app AigoSmart (ad es. con mitmproxy).\nUsa questa opzione quando il login standard continua a richiedere un codice di sicurezza.\nL'iotToken ha vita breve ma viene rinnovato automaticamente tramite il refreshToken.",
+        "data": {
+          "iot_token": "iotToken",
+          "refresh_token": "refreshToken",
+          "identity_id": "identityId"
         }
       },
       "verify": {
@@ -19,8 +35,9 @@
     },
     "error": {
       "cannot_connect": "Login fallito. Controlla email e password.",
-      "invalid_code":   "Codice di verifica non valido. Riprova.",
-      "unknown":        "Errore imprevisto. Controlla i log di Home Assistant."
+      "invalid_token": "Token non valido o scaduto. Cattura nuovi token e riprova.",
+      "invalid_code": "Codice di verifica non valido. Riprova.",
+      "unknown": "Errore imprevisto. Controlla i log di Home Assistant."
     },
     "abort": {
       "already_configured": "L'account Aigostar è già configurato."
@@ -30,6 +47,10 @@
     "sync_devices": {
       "name": "Sincronizza dispositivi",
       "description": "Riscopri tutti i dispositivi dal tuo account Aigostar e aggiungi quelli nuovi."
+    },
+    "dump_tsl": {
+      "name": "Esporta modelli dispositivi",
+      "description": "Scrive il modello TSL e i valori correnti delle proprietà di ogni dispositivo nel log di Home Assistant. Usalo per segnalare funzionalità non supportate (ad esempio la proprietà colore di una lampadina Bluetooth Mesh)."
     }
   }
 }

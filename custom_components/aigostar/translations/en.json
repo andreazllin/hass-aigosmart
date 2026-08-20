@@ -2,15 +2,31 @@
   "config": {
     "step": {
       "user": {
-        "title": "Add Aigostar Bulbs",
-        "description": "Enter your AigoSmart account credentials.\n\nAll bulbs linked to your account will be discovered automatically.\nToken refresh is handled automatically.",
+        "title": "Add Aigostar bulbs",
+        "menu_options": {
+          "login": "Email + password (standard login)",
+          "token_bypass": "Enter session tokens manually"
+        }
+      },
+      "login": {
+        "title": "Login with AigoSmart account",
+        "description": "Enter your AigoSmart account credentials.\n\nAll connected bulbs will be discovered automatically.",
         "data": {
-          "email":    "Email (AigoSmart account)",
+          "email": "Email (AigoSmart account)",
           "password": "Password"
         }
       },
+      "token_bypass": {
+        "title": "Manual token entry",
+        "description": "Enter a session captured from the AigoSmart app (e.g. with mitmproxy).\nUse this when the standard login keeps asking for a security code.\nThe iotToken is short-lived but is refreshed automatically via the refreshToken.",
+        "data": {
+          "iot_token": "iotToken",
+          "refresh_token": "refreshToken",
+          "identity_id": "identityId"
+        }
+      },
       "verify": {
-        "title": "Email Verification",
+        "title": "Email verification",
         "description": "A verification code has been sent to your email.\nPlease enter the code below.",
         "data": {
           "security_code": "Verification code"
@@ -19,8 +35,9 @@
     },
     "error": {
       "cannot_connect": "Login failed. Check email and password.",
-      "invalid_code":   "Invalid verification code. Try again.",
-      "unknown":        "Unexpected error. Check Home Assistant logs."
+      "invalid_token": "Token invalid or expired. Capture fresh tokens and try again.",
+      "invalid_code": "Invalid verification code. Try again.",
+      "unknown": "Unexpected error. Check Home Assistant logs."
     },
     "abort": {
       "already_configured": "Aigostar account is already configured."
@@ -30,6 +47,10 @@
     "sync_devices": {
       "name": "Sync devices",
       "description": "Re-discover all devices from your Aigostar account and add new ones."
+    },
+    "dump_tsl": {
+      "name": "Dump device models",
+      "description": "Write each device's TSL model and current property values to the Home Assistant log. Use this to report unsupported features (for example the colour property of a Bluetooth Mesh bulb)."
     }
   }
 }
