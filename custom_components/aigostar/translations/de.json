@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aigostar-Lampen hinzufügen",
+        "menu_options": {
+          "login": "E-Mail + Passwort (Standard-Anmeldung)",
+          "token_bypass": "Sitzungs-Tokens manuell eingeben"
+        }
+      },
+      "login": {
+        "title": "Mit AigoSmart-Konto anmelden",
+        "description": "Gib die Zugangsdaten deines AigoSmart-Kontos ein.\n\nAlle verknüpften Lampen werden automatisch erkannt.",
+        "data": {
+          "email": "E-Mail (AigoSmart-Konto)",
+          "password": "Passwort"
+        }
+      },
+      "token_bypass": {
+        "title": "Manuelle Token-Eingabe",
+        "description": "Gib eine aus der AigoSmart-App mitgeschnittene Sitzung ein (z. B. mit mitmproxy).\nNutze diese Option, wenn die Standard-Anmeldung immer wieder einen Sicherheitscode verlangt.\nDas iotToken ist kurzlebig, wird aber über das refreshToken automatisch erneuert.",
+        "data": {
+          "iot_token": "iotToken",
+          "refresh_token": "refreshToken",
+          "identity_id": "identityId"
+        }
+      },
+      "verify": {
+        "title": "E-Mail-Verifizierung",
+        "description": "Ein Verifizierungscode wurde an deine E-Mail-Adresse gesendet.\nBitte gib den Code unten ein.",
+        "data": {
+          "security_code": "Verifizierungscode"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Anmeldung fehlgeschlagen. Prüfe E-Mail und Passwort.",
+      "invalid_token": "Token ungültig oder abgelaufen. Schneide neue Tokens mit und versuche es erneut.",
+      "invalid_code": "Ungültiger Verifizierungscode. Versuche es erneut.",
+      "unknown": "Unerwarteter Fehler. Prüfe die Home-Assistant-Logs."
+    },
+    "abort": {
+      "already_configured": "Das Aigostar-Konto ist bereits konfiguriert."
+    }
+  },
+  "services": {
+    "sync_devices": {
+      "name": "Geräte synchronisieren",
+      "description": "Alle Geräte des Aigostar-Kontos neu erkennen und neue hinzufügen."
+    },
+    "dump_tsl": {
+      "name": "Gerätemodelle ausgeben",
+      "description": "Schreibt das TSL-Modell und die aktuellen Eigenschaftswerte jedes Geräts in das Home-Assistant-Log. Nutze dies, um nicht unterstützte Funktionen zu melden (z. B. die Farbeigenschaft einer Bluetooth-Mesh-Lampe)."
+    }
+  }
+}

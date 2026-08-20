@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Añadir bombillas Aigostar",
+        "menu_options": {
+          "login": "Email + contraseña (inicio de sesión estándar)",
+          "token_bypass": "Introducir los tokens de sesión manualmente"
+        }
+      },
+      "login": {
+        "title": "Iniciar sesión con la cuenta AigoSmart",
+        "description": "Introduce las credenciales de tu cuenta AigoSmart.\n\nTodas las bombillas vinculadas se descubrirán automáticamente.",
+        "data": {
+          "email": "Email (cuenta AigoSmart)",
+          "password": "Contraseña"
+        }
+      },
+      "token_bypass": {
+        "title": "Introducción manual de tokens",
+        "description": "Introduce una sesión capturada desde la app AigoSmart (p. ej. con mitmproxy).\nUsa esta opción cuando el inicio de sesión estándar pide continuamente un código de seguridad.\nEl iotToken caduca pronto, pero se renueva automáticamente mediante el refreshToken.",
+        "data": {
+          "iot_token": "iotToken",
+          "refresh_token": "refreshToken",
+          "identity_id": "identityId"
+        }
+      },
+      "verify": {
+        "title": "Verificación por email",
+        "description": "Se ha enviado un código de verificación a tu email.\nIntrodúcelo a continuación.",
+        "data": {
+          "security_code": "Código de verificación"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Error de inicio de sesión. Comprueba el email y la contraseña.",
+      "invalid_token": "Token no válido o caducado. Captura tokens nuevos e inténtalo de nuevo.",
+      "invalid_code": "Código de verificación no válido. Inténtalo de nuevo.",
+      "unknown": "Error inesperado. Consulta los logs de Home Assistant."
+    },
+    "abort": {
+      "already_configured": "La cuenta Aigostar ya está configurada."
+    }
+  },
+  "services": {
+    "sync_devices": {
+      "name": "Sincronizar dispositivos",
+      "description": "Volver a descubrir todos los dispositivos de tu cuenta Aigostar y añadir los nuevos."
+    },
+    "dump_tsl": {
+      "name": "Volcar modelos de dispositivos",
+      "description": "Escribe el modelo TSL y los valores actuales de las propiedades de cada dispositivo en el log de Home Assistant. Úsalo para informar de funciones no soportadas (por ejemplo, la propiedad de color de una bombilla Bluetooth Mesh)."
+    }
+  }
+}

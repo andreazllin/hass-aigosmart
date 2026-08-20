@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ajouter des appareils Aigostar",
+        "menu_options": {
+          "login": "Email + mot de passe (connexion standard)",
+          "token_bypass": "Saisir les jetons de session manuellement"
+        }
+      },
+      "login": {
+        "title": "Connexion avec le compte AigoSmart",
+        "description": "Entrez vos identifiants AigoSmart.\n\nTous les appareils liés à votre compte seront découverts automatiquement.",
+        "data": {
+          "email": "Email (compte AigoSmart)",
+          "password": "Mot de passe"
+        }
+      },
+      "token_bypass": {
+        "title": "Saisie manuelle des jetons",
+        "description": "Entrez une session capturée depuis l'application AigoSmart (par ex. avec mitmproxy).\nUtilisez cette option lorsque la connexion standard demande sans cesse un code de sécurité.\nL'iotToken a une durée de vie courte mais est renouvelé automatiquement via le refreshToken.",
+        "data": {
+          "iot_token": "iotToken",
+          "refresh_token": "refreshToken",
+          "identity_id": "identityId"
+        }
+      },
+      "verify": {
+        "title": "Vérification par email",
+        "description": "Un code de vérification a été envoyé à votre adresse email.\nVeuillez l'entrer ci-dessous.",
+        "data": {
+          "security_code": "Code de vérification"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Échec de la connexion. Vérifiez votre email et votre mot de passe.",
+      "invalid_token": "Jeton invalide ou expiré. Capturez de nouveaux jetons et réessayez.",
+      "invalid_code": "Code de vérification invalide. Réessayez.",
+      "unknown": "Erreur inattendue. Consultez les logs de Home Assistant."
+    },
+    "abort": {
+      "already_configured": "Le compte Aigostar est déjà configuré."
+    }
+  },
+  "services": {
+    "sync_devices": {
+      "name": "Synchroniser les appareils",
+      "description": "Relancer la découverte de tous les appareils depuis votre compte Aigostar et ajouter les nouveaux."
+    },
+    "dump_tsl": {
+      "name": "Exporter les modèles des appareils",
+      "description": "Écrit le modèle TSL et les valeurs actuelles des propriétés de chaque appareil dans le log de Home Assistant. À utiliser pour signaler des fonctionnalités non prises en charge (par exemple la propriété couleur d'une ampoule Bluetooth Mesh)."
+    }
+  }
+}

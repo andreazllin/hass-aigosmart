@@ -16,7 +16,7 @@ Control your Aigostar lights directly from Home Assistant — no local flashing 
 - **Brightness control** (1–100%)
 - **Color temperature** (2700K warm – 6500K cool)
 - **Email verification** support (when the server requires a security code)
-- **Multilingual UI** — English and Italian translations included
+- **Multilingual UI** — English, Italian, French, Spanish and German translations included
 
 
 ## Fans
