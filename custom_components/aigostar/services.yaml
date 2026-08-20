@@ -1,3 +1,10 @@
 sync_devices:
   name: Sync devices
   description: Re-discover all devices from your Aigostar account and add new ones.
+
+dump_tsl:
+  name: Dump device models
+  description: >-
+    Write each device's TSL model and current property values to the Home
+    Assistant log. Use this to report unsupported features (for example the
+    colour property of a Bluetooth Mesh bulb).

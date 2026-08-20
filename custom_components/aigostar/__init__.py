@@ -9,7 +9,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.event import async_track_time_interval
 
-from .alibaba_api import full_login_sync, list_devices_sync, refresh_iot_token_sync
+from .alibaba_api import (
+    AlibabaIoTClient,
+    full_login_sync,
+    get_tsl_sync,
+    list_devices_sync,
+    refresh_iot_token_sync,
+)
 from .const import APP_KEY, APP_SECRET, CONF_EMAIL, CONF_PASSWORD, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,6 +25,7 @@ TOKEN_REFRESH_INTERVAL = timedelta(hours=1)
 DEVICE_SYNC_INTERVAL = timedelta(minutes=5)
 
 SERVICE_SYNC = "sync_devices"
+SERVICE_DUMP_TSL = "dump_tsl"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -148,8 +155,74 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.info("Aigostar sync_devices: reloading integration %s", cfg_entry.title)
                 await hass.config_entries.async_reload(eid)
 
+    # Diagnostic service: aigostar.dump_tsl
+    # Logs each product's TSL model plus a live property snapshot at WARNING
+    # level so it lands in home-assistant.log without enabling debug logging.
+    # This is how unknown property identifiers (notably on BT Mesh bulbs) are
+    # identified when adding support for a new product.
+    async def _handle_dump_tsl_service(call: ServiceCall) -> None:
+        for eid, ed in list(hass.data.get(DOMAIN, {}).items()):
+            if not isinstance(ed, dict) or "devices" not in ed:
+                continue
+            seen_products: set[str] = set()
+            for dev in ed["devices"]:
+                iot_id = dev.get("iotId", "")
+                product_key = dev.get("productKey", "")
+                _LOGGER.warning(
+                    "Aigostar dump_tsl: device %s | name=%s | netType=%s | "
+                    "productKey=%s | category=%s | raw=%s",
+                    iot_id, dev.get("nickName"), dev.get("netType"),
+                    product_key, dev.get("categoryKey") or dev.get("category"), dev,
+                )
+
+                if not iot_id:
+                    continue
+
+                # The TSL endpoint keys off iotId, but the model is per product,
+                # so fetch it only once per productKey.
+                cache_key = product_key or iot_id
+                if cache_key not in seen_products:
+                    seen_products.add(cache_key)
+                    try:
+                        tsl = await hass.async_add_executor_job(
+                            get_tsl_sync, ed["app_key"], ed["app_secret"],
+                            ed["iot_token"], iot_id,
+                        )
+                        _LOGGER.warning(
+                            "Aigostar dump_tsl: TSL model for product %s: %s",
+                            product_key or iot_id, tsl,
+                        )
+                    except Exception as exc:
+                        _LOGGER.warning(
+                            "Aigostar dump_tsl: TSL fetch failed for %s (product %s): %s",
+                            iot_id, product_key, exc,
+                        )
+                try:
+                    client = AlibabaIoTClient(
+                        iot_id=iot_id, iot_token=ed["iot_token"],
+                        app_key=ed["app_key"], app_secret=ed["app_secret"],
+                    )
+                    props = await hass.async_add_executor_job(client.get_properties_sync)
+                    _LOGGER.warning(
+                        "Aigostar dump_tsl: live properties for %s: %s", iot_id, props,
+                    )
+                except Exception as exc:
+                    _LOGGER.warning(
+                        "Aigostar dump_tsl: property read failed for %s: %s", iot_id, exc,
+                    )
+
+            # Report what each entity actually resolved, as a pasteable entry
+            for entity in hass.data.get(f"{DOMAIN}_entities", {}).get(eid, []):
+                if not hasattr(entity, "describe_color_profile"):
+                    continue
+                _LOGGER.warning(
+                    "Aigostar dump_tsl: %s", entity.describe_color_profile(),
+                )
+
     if not hass.services.has_service(DOMAIN, SERVICE_SYNC):
         hass.services.async_register(DOMAIN, SERVICE_SYNC, _handle_sync_service)
+    if not hass.services.has_service(DOMAIN, SERVICE_DUMP_TSL):
+        hass.services.async_register(DOMAIN, SERVICE_DUMP_TSL, _handle_dump_tsl_service)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
@@ -166,7 +239,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id, None)
         hass.data.get(f"{DOMAIN}_entities", {}).pop(entry.entry_id, None)
-        # Remove service if no entries remain
+        # Remove services if no entries remain
         if not hass.data.get(DOMAIN):
             hass.services.async_remove(DOMAIN, SERVICE_SYNC)
+            hass.services.async_remove(DOMAIN, SERVICE_DUMP_TSL)
     return unload_ok
