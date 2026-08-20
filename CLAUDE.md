@@ -51,7 +51,7 @@ custom_components/aigostar/
 ├── manifest.json    — HA integration metadata
 ├── services.yaml    — sync_devices service definition
 ├── strings.json     — UI strings (English, canonical)
-└── translations/    — en.json, it.json
+└── translations/    — en.json, it.json, fr.json, es.json, de.json
 ```
 
 ## Key Technical Details
@@ -121,4 +121,30 @@ curl -X POST -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json
 - Code, comments, docstrings, log messages: **English**
 - User communicates in **Italian** — respond in Italian
 - All code, comments, docstrings, log messages, and CLI output must be in **English**
-- UI translations exist for both English and Italian
+
+## Translations (user-facing strings)
+
+Supported languages: **English, Italian, French, Spanish, German**
+(`translations/en.json`, `it.json`, `fr.json`, `es.json`, `de.json`).
+
+**Whenever you add or change a user-facing string** (config flow steps, error
+messages, service names/descriptions, entity names via translation keys):
+
+1. Update `strings.json` first — it is the canonical English source
+2. Update **all five** files in `translations/` with the same key structure
+3. `translations/en.json` must stay identical to `strings.json`
+4. Verify key parity across files, e.g.:
+   ```bash
+   python3 -c "
+   import json
+   def keys(d, p=''):
+       return {f'{p}.{k}' for k in d} | {x for k, v in d.items() if isinstance(v, dict) for x in keys(v, f'{p}.{k}')}
+   ref = keys(json.load(open('custom_components/aigostar/strings.json')))
+   for lang in ('en', 'it', 'fr', 'es', 'de'):
+       got = keys(json.load(open(f'custom_components/aigostar/translations/{lang}.json')))
+       assert got == ref, (lang, ref ^ got)
+   print('translations OK')"
+   ```
+
+Never leave a language file behind: a missing key silently falls back to the
+raw key name in the HA UI.
