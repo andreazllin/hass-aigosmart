@@ -65,30 +65,31 @@ custom_components/aigostar/
 ## Development Workflow
 
 ### Branches
-- `main` — stable releases only (tagged `vX.Y.Z`)
-- `beta` — pre-releases for testing (tagged `vX.Y.Z-beta.N`)
-- `dev` — active development
+- `main` — the only branch: all work happens here, releases are tagged `vX.Y.Z` (see Release Process below)
 
-### Release Process (automated via CI)
+### Release Process (Claude-driven versioning)
 
-Releases are fully automated by `.github/workflows/release.yml`. **Do NOT manually create tags, bump versions, or create GitHub releases.**
+Versioning is manual and done locally by Claude; CI only publishes.
 
-How it works:
-1. Push/merge commits to `main` (use conventional commit messages: `feat:`, `fix:`, etc.)
-2. The CI workflow automatically:
-   - Analyzes commit messages since the last tag to determine the version bump (patch/minor/major)
-   - Bumps the version in `manifest.json`
-   - Creates a `chore(release): vX.Y.Z` commit + tag
-   - Creates a GitHub Release with auto-generated changelog
-   - Merges main back into `dev`
-3. Commits starting with `chore(release):` are skipped by the CI to avoid infinite loops
+**When the user says "new major version", "new minor version" or "new patch version"**, do exactly this:
 
-Version bump rules (conventional commits):
-- `fix:` → patch bump (e.g. 1.2.1 → 1.2.2)
-- `feat:` → minor bump (e.g. 1.2.1 → 1.3.0)
-- `feat!:` or `BREAKING CHANGE` → major bump (e.g. 1.2.1 → 2.0.0)
+1. Make sure the release commit will contain only the manifest bump — stash or set aside any unrelated pending changes first
+2. Read the current version from `custom_components/aigostar/manifest.json`
+3. Bump the requested part (semver): major → `X+1.0.0`, minor → `X.Y+1.0`, patch → `X.Y.Z+1`
+4. Write the new version into `manifest.json`
+5. Commit only that file with the message `chore(release): vX.Y.Z`
+6. Create an annotated tag on that commit: `git tag -a vX.Y.Z -m "vX.Y.Z"` (annotated, so `--follow-tags` pushes it)
+7. Do **NOT** push by default — the user pushes with `git push origin main --follow-tags`.
+   Only if the user explicitly asks for the push as part of the release request
+   (e.g. "new minor version and push"), run `git push origin main --follow-tags`
+   after tagging — this publishes the release, so never infer it
 
-**Important**: When merging to main, ensure the last commit message is NOT `chore(release):` — otherwise the CI will skip the release.
+When the tag reaches GitHub, `.github/workflows/release.yml`:
+- verifies the tag matches the manifest version (fails otherwise)
+- builds `aigostar.zip` from `custom_components/aigostar/` — the HACS artifact (`zip_release` + `filename` in hacs.json point HACS at this release asset)
+- creates the GitHub Release with auto-generated notes: commit list and full-changelog diff link since the previous release
+
+No PAT/secret is required: the workflow never pushes commits, so the default `GITHUB_TOKEN` is enough.
 
 ### Deploy to Home Assistant (dev/test)
 ```bash
