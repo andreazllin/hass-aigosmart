@@ -1,8 +1,8 @@
 # Aigostar Smart Lights for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![GitHub Release](https://img.shields.io/github/v/release/MarcoM1993/ha-aigostar?style=for-the-badge)](https://github.com/MarcoM1993/ha-aigostar/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/andreazllin/hass-aigosmart?style=for-the-badge)](https://github.com/andreazllin/hass-aigosmart/releases)
+
 A Home Assistant custom integration for **Aigostar smart bulbs** (TG7100C chipset).
 
 Control your Aigostar lights directly from Home Assistant — no local flashing required. The integration communicates with the same backend as the AigoSmart app.
@@ -52,13 +52,13 @@ differs.
 
 ### HACS (Recommended)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MarcoM1993&repository=ha-aigostar&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=andreazllin&repository=hass-aigosmart&category=integration)
 
 Click the button above, or manually:
 
 1. Open HACS in Home Assistant
 2. Go to **Integrations** → **⋮** (top right) → **Custom repositories**
-3. Add this repository URL: `https://github.com/MarcoM1993/ha-aigostar`
+3. Add this repository URL: `https://github.com/andreazllin/hass-aigosmart`
 4. Select **Integration** as the category
 5. Click **Add**, then find **Aigostar Smart Lights** in the list and install it
 6. Restart Home Assistant
@@ -116,26 +116,10 @@ Device control is performed via the same API gateway used by the AigoSmart app.
 - Wait up to 5 minutes for auto-sync, or call `aigostar.sync_devices`
 - You can also reload the integration: **Settings** → **Integrations** → **Aigostar** → **⋮** → **Reload**
 
-## Support This Project
-
-This integration was built from scratch by reverse engineering the AigoSmart app — no public API, no documentation, just hours of packet sniffing and APK decompilation.
-
-If it saved you time or you just enjoy using it, consider buying me a coffee. It keeps the project alive and motivates new features and device support.
-
-<a href="https://paypal.me/marcomicheli93">
-  <img src="https://img.shields.io/badge/Support%20via-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Support via PayPal" height="40">
-</a>
-
-Every contribution — no matter how small — is truly appreciated. Thank you!
-
-## Contact
-
-For questions, suggestions, or bug reports: **marcomicheli1993@gmail.com**
-
 ## Disclaimer
 
-This integration is unofficial and not affiliated with Aigostar. It was developed through reverse engineering of the AigoSmart Android app for personal and educational use. Use at your own risk.
+This initial integration was built by [@MarcoM1993](https://github.com/MarcoM1993) from scratch by reverse engineering the AigoSmart app — no public API, no documentation, just hours of packet sniffing and APK decompilation.
 
-## License
+It is unofficial and not affiliated with Aigostar, for personal and educational use.
 
-[MIT](LICENSE)
+Use at your own risk.

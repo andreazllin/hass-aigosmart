@@ -2,13 +2,14 @@
   "domain": "aigostar",
   "name": "Aigostar Smart Lights",
   "codeowners": [
+    "@andreazllin",
     "@MarcoM1993"
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/MarcoM1993/ha-aigostar",
+  "documentation": "https://github.com/andreazllin/hass-aigosmart",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/MarcoM1993/ha-aigostar/issues",
+  "issue_tracker": "https://github.com/andreazllin/hass-aigosmart/issues",
   "requirements": [
     "cryptography>=41.0.0"
   ],
