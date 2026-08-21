@@ -143,7 +143,13 @@ SMART_API_BASE = "https://smartapi.aigostar.com"
 PATH_SEND_CODE = "/message/v1.1/security/sendcode/anonymous"
 PATH_VERIFY_CODE = "/message/v1.1/security/verify/anonymous"
 
-# Deterministic device ID (persists across restarts to avoid repeated security codes)
+# Deterministic device ID sent with login and security-code calls. The backend
+# does risk-based auth: a login from an unknown device can trigger
+# NEED_SECURITY_CODE email verification. uuid5 of this fixed string yields the
+# same ID across restarts and reinstalls, so once the server trusts it for an
+# account, later logins skip the verification. The seed intentionally kept the
+# legacy "aigostar" spelling through the Aigosmart rename: changing it would
+# present a brand-new device and re-trigger verification on existing installs.
 _DEVICE_ID = str(uuid.uuid5(uuid.NAMESPACE_DNS, "aigostar.homeassistant")).replace("-", "")
 
 
