@@ -1,8 +1,10 @@
 name: Validate
 
 on:
+  push:
+    branches: [main]
   pull_request:
-    branches: [main, dev, beta]
+    branches: [main]
 
 jobs:
   hacs:
