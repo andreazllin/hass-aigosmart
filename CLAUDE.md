@@ -42,16 +42,25 @@ The integration communicates via the Alibaba Cloud IoT API Gateway using x-ca-si
 
 ```
 custom_components/aigostar/
-├── __init__.py      — Entry setup, token refresh, device sync, service registration
-├── alibaba_api.py   — Full API client: login flow, device list, property get/set
+├── __init__.py      — Entry setup, token refresh/persistence, device sync, services
+├── alibaba_api.py   — Full API client: login flow, device list, property get/set, TSL fetch
 ├── brand/           — Integration icons for HA 2026.3+ (icon.png, icon@2x.png)
-├── config_flow.py   — HA config flow: email/password → optional verification code
+├── color_model.py   — Colour-property detection from TSL models (Wi-Fi + BT Mesh)
+├── config_flow.py   — HA config flow: email/password login or manual token entry
 ├── const.py         — Constants: API keys, TSL property names, conversion ranges
-├── light.py         — LightEntity: polling, brightness/color_temp control
+├── fan.py           — FanEntity: speed, preset modes, oscillation
+├── helpers.py       — Shared entity registry + device-type predicates
+├── light.py         — LightEntity: polling, brightness/color_temp/HS colour control
 ├── manifest.json    — HA integration metadata
-├── services.yaml    — sync_devices service definition
+├── number.py        — Fan auto-off timer
+├── services.yaml    — sync_devices + dump_tsl service definitions
 ├── strings.json     — UI strings (English, canonical)
-└── translations/    — en.json, it.json, fr.json, es.json, de.json
+├── switch.py        — Fan key beep, kettle boiling/keep-warm switches
+├── translations/    — en.json, it.json, fr.json, es.json, de.json
+└── water_heater.py  — Kettle: on/off, current/target temperature
+
+scripts/dump_device_props.py — CLI diagnostic: dump real TSL identifiers per device
+tests/test_light.py          — Light platform unit tests (plain pytest, HA mocked)
 ```
 
 ## Key Technical Details
