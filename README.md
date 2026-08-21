@@ -114,7 +114,7 @@ Device control is performed via the same API gateway used by the AigoSmart app.
 
 ### New bulbs not appearing
 - Wait up to 5 minutes for auto-sync, or call `aigosmart.sync_devices`
-- You can also reload the integration: **Settings** → **Integrations** → **Aigostar** → **⋮** → **Reload**
+- You can also reload the integration: **Settings** → **Integrations** → **Aigosmart** → **⋮** → **Reload**
 
 ## Disclaimer
 
