@@ -55,17 +55,17 @@ async def async_setup_entry(
             app_secret=entry_data["app_secret"],
         )
         if is_fan:
-            entities.append(AigostarFanBuzzer(client, iot_id, nick))
+            entities.append(AigosmartFanBuzzer(client, iot_id, nick))
         else:
             online = dev.get("status", 0) == 1
-            entities.append(AigostarKettleSwitch(client, iot_id, nick, online, dev))
-            entities.append(AigostarKettleKeepWarmSwitch(client, iot_id, nick, online, dev))
+            entities.append(AigosmartKettleSwitch(client, iot_id, nick, online, dev))
+            entities.append(AigosmartKettleKeepWarmSwitch(client, iot_id, nick, online, dev))
 
     register_for_token_refresh(hass, entry, entities)
     async_add_entities(entities, update_before_add=True)
 
 
-class AigostarFanBuzzer(SwitchEntity):
+class AigosmartFanBuzzer(SwitchEntity):
     """Key beep for an Aigostar fan."""
 
     _attr_has_entity_name = True
@@ -97,7 +97,7 @@ class AigostarFanBuzzer(SwitchEntity):
                 self._is_on = bool(int(props[PROP_FAN_BUZZER]))
             self._available = True
         except Exception as exc:
-            _LOGGER.warning("Aigostar buzzer update failed: %s", exc)
+            _LOGGER.warning("Aigosmart buzzer update failed: %s", exc)
             self._available = False
 
     def turn_on(self, **kwargs: Any) -> None:
@@ -111,7 +111,7 @@ class AigostarFanBuzzer(SwitchEntity):
         self.schedule_update_ha_state()
 
 
-class AigostarKettleSwitch(SwitchEntity):
+class AigosmartKettleSwitch(SwitchEntity):
     """Aigostar kettle boiling switch."""
 
     _attr_has_entity_name = True
@@ -150,7 +150,7 @@ class AigostarKettleSwitch(SwitchEntity):
             self._is_on = bool(props.get(PROP_KETTLE_SWITCH))
             self._available = True
         except Exception as exc:
-            _LOGGER.warning("Aigostar kettle switch update failed: %s", exc)
+            _LOGGER.warning("Aigosmart kettle switch update failed: %s", exc)
             self._available = False
 
     def turn_on(self, **kwargs: Any) -> None:
@@ -159,7 +159,7 @@ class AigostarKettleSwitch(SwitchEntity):
             self._is_on = True
             self.schedule_update_ha_state()
         except Exception as exc:
-            _LOGGER.error("Aigostar kettle [%s] turn_on failed: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart kettle [%s] turn_on failed: %s", self._attr_unique_id, exc)
 
     def turn_off(self, **kwargs: Any) -> None:
         try:
@@ -167,10 +167,10 @@ class AigostarKettleSwitch(SwitchEntity):
             self._is_on = False
             self.schedule_update_ha_state()
         except Exception as exc:
-            _LOGGER.error("Aigostar kettle [%s] turn_off failed: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart kettle [%s] turn_off failed: %s", self._attr_unique_id, exc)
 
 
-class AigostarKettleKeepWarmSwitch(SwitchEntity):
+class AigosmartKettleKeepWarmSwitch(SwitchEntity):
     """Aigostar kettle keep-warm switch."""
 
     _attr_has_entity_name = True
@@ -209,7 +209,7 @@ class AigostarKettleKeepWarmSwitch(SwitchEntity):
             self._is_on = bool(props.get(PROP_KETTLE_KEEP_WARM))
             self._available = True
         except Exception as exc:
-            _LOGGER.warning("Aigostar keep-warm switch update failed: %s", exc)
+            _LOGGER.warning("Aigosmart keep-warm switch update failed: %s", exc)
             self._available = False
 
     def turn_on(self, **kwargs: Any) -> None:
@@ -218,7 +218,7 @@ class AigostarKettleKeepWarmSwitch(SwitchEntity):
             self._is_on = True
             self.schedule_update_ha_state()
         except Exception as exc:
-            _LOGGER.error("Aigostar kettle [%s] keep_warm on failed: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart kettle [%s] keep_warm on failed: %s", self._attr_unique_id, exc)
 
     def turn_off(self, **kwargs: Any) -> None:
         try:
@@ -226,4 +226,4 @@ class AigostarKettleKeepWarmSwitch(SwitchEntity):
             self._is_on = False
             self.schedule_update_ha_state()
         except Exception as exc:
-            _LOGGER.error("Aigostar kettle [%s] keep_warm off failed: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart kettle [%s] keep_warm off failed: %s", self._attr_unique_id, exc)

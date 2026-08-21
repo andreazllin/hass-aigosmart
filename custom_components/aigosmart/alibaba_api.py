@@ -520,11 +520,11 @@ def full_login_sync(
     # Step 1: UC login
     login_info = _uc_login_sync(email, password, security_code)
     access_token = login_info["access_token"]
-    _LOGGER.info("Aigostar login OK (user_id=%s)", login_info.get("user_id", "?"))
+    _LOGGER.info("Aigosmart login OK (user_id=%s)", login_info.get("user_id", "?"))
 
     # Step 2: UC authorize -> authCode
     auth_code = _uc_authorize_sync(access_token)
-    _LOGGER.debug("Aigostar authorize OK (code=%s...)", auth_code[:8])
+    _LOGGER.debug("Aigosmart authorize OK (code=%s...)", auth_code[:8])
 
     # Step 3: Region discovery -> OA host
     oa_host = _resolve_oa_host_sync(auth_code, app_key, app_secret)
@@ -534,7 +534,7 @@ def full_login_sync(
 
     # Step 5: Create IoT session using sid
     session = _create_session_sync(sid, app_key, app_secret)
-    _LOGGER.info("Aigostar iotToken obtained (expires in %ss)", session.get("iotTokenExpire", "?"))
+    _LOGGER.info("Aigosmart iotToken obtained (expires in %ss)", session.get("iotTokenExpire", "?"))
     return session
 
 
@@ -556,7 +556,7 @@ def refresh_iot_token_sync(
     data = result.get("data", {})
     if "iotToken" not in data:
         raise ValueError(f"Token refresh failed: no iotToken in response: {result}")
-    _LOGGER.info("Aigostar iotToken refreshed (expires in %ss)", data.get("iotTokenExpire", "?"))
+    _LOGGER.info("Aigosmart iotToken refreshed (expires in %ss)", data.get("iotTokenExpire", "?"))
     return data
 
 

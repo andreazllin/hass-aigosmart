@@ -76,9 +76,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             devices = await hass.async_add_executor_job(
                 list_devices_sync, APP_KEY, APP_SECRET, iot_token,
             )
-            _LOGGER.info("Aigostar: stored iotToken valid, %d devices discovered", len(devices))
+            _LOGGER.info("Aigosmart: stored iotToken valid, %d devices discovered", len(devices))
         except Exception as exc:
-            _LOGGER.info("Aigostar: stored iotToken rejected (%s), trying refresh", exc)
+            _LOGGER.info("Aigosmart: stored iotToken rejected (%s), trying refresh", exc)
             if refresh_token and identity_id:
                 try:
                     new_session = await hass.async_add_executor_job(
@@ -94,14 +94,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         list_devices_sync, APP_KEY, APP_SECRET, iot_token,
                     )
                     _persist_tokens(iot_token, refresh_token, identity_id, token_expire, token_created)
-                    _LOGGER.info("Aigostar: token refreshed, %d devices discovered", len(devices))
+                    _LOGGER.info("Aigosmart: token refreshed, %d devices discovered", len(devices))
                 except Exception as exc2:
-                    _LOGGER.info("Aigostar: token refresh failed (%s), falling back to full login", exc2)
+                    _LOGGER.info("Aigosmart: token refresh failed (%s), falling back to full login", exc2)
 
     if devices is None:
         if not email or not password:
             _LOGGER.error(
-                "Aigostar: stored tokens are no longer valid and the entry has no "
+                "Aigosmart: stored tokens are no longer valid and the entry has no "
                 "account credentials — re-add the integration with fresh tokens"
             )
             return False
@@ -122,7 +122,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             list_devices_sync, APP_KEY, APP_SECRET, iot_token,
         )
         _persist_tokens(iot_token, refresh_token, identity_id, token_expire, token_created)
-        _LOGGER.info("Aigostar: login OK, %d devices discovered", len(devices))
+        _LOGGER.info("Aigosmart: login OK, %d devices discovered", len(devices))
 
     # Shared state
     entry_data = {
@@ -179,10 +179,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             for entity in hass.data.get(f"{DOMAIN}_entities", {}).get(entry.entry_id, []):
                 entity.update_token(new_token)
 
-            _LOGGER.info("Aigostar: iotToken refreshed successfully")
+            _LOGGER.info("Aigosmart: iotToken refreshed successfully")
 
         except Exception as exc:
-            _LOGGER.warning("Aigostar: token refresh failed, retrying with full login: %s", exc)
+            _LOGGER.warning("Aigosmart: token refresh failed, retrying with full login: %s", exc)
             try:
                 new_session = await hass.async_add_executor_job(
                     full_login_sync,
@@ -203,9 +203,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 for entity in hass.data.get(f"{DOMAIN}_entities", {}).get(entry.entry_id, []):
                     entity.update_token(new_token)
 
-                _LOGGER.info("Aigostar: iotToken obtained via re-login")
+                _LOGGER.info("Aigosmart: iotToken obtained via re-login")
             except Exception as exc2:
-                _LOGGER.error("Aigostar: re-login also failed: %s", exc2)
+                _LOGGER.error("Aigosmart: re-login also failed: %s", exc2)
 
     # Periodic device sync: check for new devices
     async def _periodic_sync(_now=None):
@@ -219,10 +219,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             known_ids = {d["iotId"] for d in ed["devices"] if "iotId" in d}
             new_ids = {d["iotId"] for d in devices if d.get("iotId")} - known_ids
             if new_ids:
-                _LOGGER.info("Aigostar auto-sync: %d new devices found, reloading integration", len(new_ids))
+                _LOGGER.info("Aigosmart auto-sync: %d new devices found, reloading integration", len(new_ids))
                 await hass.config_entries.async_reload(entry.entry_id)
         except Exception as exc:
-            _LOGGER.debug("Aigostar auto-sync failed: %s", exc)
+            _LOGGER.debug("Aigosmart auto-sync failed: %s", exc)
 
     # Immediate refresh callable — used by entities when they detect a
     # token-expired error mid-flight (bypasses the elapsed-time guard).
@@ -239,15 +239,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry_data["unsub_sync"] = unsub_sync
     entry_data["force_refresh"] = _force_refresh
 
-    # Manual service: aigostar.sync_devices (reloads the integration)
+    # Manual service: aigosmart.sync_devices (reloads the integration)
     async def _handle_sync_service(call: ServiceCall) -> None:
         for eid in list(hass.data.get(DOMAIN, {})):
             cfg_entry = hass.config_entries.async_get_entry(eid)
             if cfg_entry:
-                _LOGGER.info("Aigostar sync_devices: reloading integration %s", cfg_entry.title)
+                _LOGGER.info("Aigosmart sync_devices: reloading integration %s", cfg_entry.title)
                 await hass.config_entries.async_reload(eid)
 
-    # Diagnostic service: aigostar.dump_tsl
+    # Diagnostic service: aigosmart.dump_tsl
     # Logs each product's TSL model plus a live property snapshot at WARNING
     # level so it lands in home-assistant.log without enabling debug logging.
     # This is how unknown property identifiers (notably on BT Mesh bulbs) are
@@ -261,7 +261,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 iot_id = dev.get("iotId", "")
                 product_key = dev.get("productKey", "")
                 _LOGGER.warning(
-                    "Aigostar dump_tsl: device %s | name=%s | netType=%s | "
+                    "Aigosmart dump_tsl: device %s | name=%s | netType=%s | "
                     "productKey=%s | category=%s | raw=%s",
                     iot_id, dev.get("nickName"), dev.get("netType"),
                     product_key, dev.get("categoryKey") or dev.get("category"), dev,
@@ -281,12 +281,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                             ed["iot_token"], iot_id,
                         )
                         _LOGGER.warning(
-                            "Aigostar dump_tsl: TSL model for product %s: %s",
+                            "Aigosmart dump_tsl: TSL model for product %s: %s",
                             product_key or iot_id, tsl,
                         )
                     except Exception as exc:
                         _LOGGER.warning(
-                            "Aigostar dump_tsl: TSL fetch failed for %s (product %s): %s",
+                            "Aigosmart dump_tsl: TSL fetch failed for %s (product %s): %s",
                             iot_id, product_key, exc,
                         )
                 try:
@@ -296,11 +296,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     )
                     props = await hass.async_add_executor_job(client.get_properties_sync)
                     _LOGGER.warning(
-                        "Aigostar dump_tsl: live properties for %s: %s", iot_id, props,
+                        "Aigosmart dump_tsl: live properties for %s: %s", iot_id, props,
                     )
                 except Exception as exc:
                     _LOGGER.warning(
-                        "Aigostar dump_tsl: property read failed for %s: %s", iot_id, exc,
+                        "Aigosmart dump_tsl: property read failed for %s: %s", iot_id, exc,
                     )
 
             # Report what each entity actually resolved, as a pasteable entry
@@ -308,7 +308,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if not hasattr(entity, "describe_color_profile"):
                     continue
                 _LOGGER.warning(
-                    "Aigostar dump_tsl: %s", entity.describe_color_profile(),
+                    "Aigosmart dump_tsl: %s", entity.describe_color_profile(),
                 )
 
     if not hass.services.has_service(DOMAIN, SERVICE_SYNC):

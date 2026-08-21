@@ -51,7 +51,7 @@ STEP_VERIFY_SCHEMA = vol.Schema(
 )
 
 
-class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class AigosmartConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow: asks for email + password, optionally a verification code."""
 
     VERSION = 5
@@ -91,13 +91,13 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_verify()
 
             except ValueError as exc:
-                _LOGGER.warning("Aigostar login failed: %s", exc)
+                _LOGGER.warning("Aigosmart login failed: %s", exc)
                 errors["base"] = "cannot_connect"
             except ImportError as exc:
                 _LOGGER.error("Missing dependency: %s", exc)
                 errors["base"] = "unknown"
             except Exception as exc:
-                _LOGGER.exception("Aigostar login error: %s", exc)
+                _LOGGER.exception("Aigosmart login error: %s", exc)
                 errors["base"] = "unknown"
 
         return self.async_show_form(
@@ -121,10 +121,10 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 devices = await self.hass.async_add_executor_job(
                     list_devices_sync, APP_KEY, APP_SECRET, iot_token,
                 )
-                _LOGGER.info("Aigostar token entry: %d devices found", len(devices))
+                _LOGGER.info("Aigosmart token entry: %d devices found", len(devices))
             except Exception as exc:
                 # Token might already be expired — try the refreshToken
-                _LOGGER.info("Aigostar: provided iotToken rejected (%s), trying refresh", exc)
+                _LOGGER.info("Aigosmart: provided iotToken rejected (%s), trying refresh", exc)
                 try:
                     new_session = await self.hass.async_add_executor_job(
                         refresh_iot_token_sync,
@@ -137,18 +137,18 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         list_devices_sync, APP_KEY, APP_SECRET, iot_token,
                     )
                     _LOGGER.info(
-                        "Aigostar token entry (after refresh): %d devices found", len(devices),
+                        "Aigosmart token entry (after refresh): %d devices found", len(devices),
                     )
                 except Exception as exc2:
-                    _LOGGER.warning("Aigostar token entry failed: %s", exc2)
+                    _LOGGER.warning("Aigosmart token entry failed: %s", exc2)
                     errors["base"] = "invalid_token"
 
             if devices is not None:
-                await self.async_set_unique_id("aigostar_account")
+                await self.async_set_unique_id("aigosmart_account")
                 self._abort_if_unique_id_configured()
 
                 return self.async_create_entry(
-                    title=f"Aigostar ({len(devices)} lights)",
+                    title=f"Aigosmart ({len(devices)} lights)",
                     data={
                         CONF_EMAIL: "",
                         CONF_PASSWORD: "",
@@ -184,7 +184,7 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.warning("Login with code failed: %s", exc)
                 errors["base"] = "cannot_connect"
             except Exception as exc:
-                _LOGGER.exception("Aigostar verification error: %s", exc)
+                _LOGGER.exception("Aigosmart verification error: %s", exc)
                 errors["base"] = "unknown"
 
         return self.async_show_form(
@@ -198,13 +198,13 @@ class AigostarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         devices = await self.hass.async_add_executor_job(
             list_devices_sync, APP_KEY, APP_SECRET, session["iotToken"],
         )
-        _LOGGER.info("Aigostar: login OK, %d devices found", len(devices))
+        _LOGGER.info("Aigosmart: login OK, %d devices found", len(devices))
 
-        await self.async_set_unique_id("aigostar_account")
+        await self.async_set_unique_id("aigosmart_account")
         self._abort_if_unique_id_configured()
 
         return self.async_create_entry(
-            title=f"Aigostar ({len(devices)} lights)",
+            title=f"Aigosmart ({len(devices)} lights)",
             data={
                 **user_input,
                 # Store the session so setup can skip the full login

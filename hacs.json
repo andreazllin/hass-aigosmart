@@ -1,7 +1,7 @@
 {
-  "name": "Aigostar Smart",
+  "name": "Aigosmart",
   "render_readme": true,
   "homeassistant": "2026.3.4",
   "zip_release": true,
-  "filename": "aigostar.zip"
+  "filename": "aigosmart.zip"
 }

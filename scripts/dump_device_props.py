@@ -20,7 +20,7 @@ from __future__ import annotations
 import importlib.util
 import os
 
-_PKG = os.path.join(os.path.dirname(__file__), "..", "custom_components", "aigostar")
+_PKG = os.path.join(os.path.dirname(__file__), "..", "custom_components", "aigosmart")
 
 
 def _load(name: str):

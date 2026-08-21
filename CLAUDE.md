@@ -1,4 +1,4 @@
-# Aigostar Smart Lights — Claude Code Project Guide
+# Aigosmart — Claude Code Project Guide
 
 ## Project Overview
 
@@ -41,7 +41,7 @@ The integration communicates via the Alibaba Cloud IoT API Gateway using x-ca-si
 ## File Structure
 
 ```
-custom_components/aigostar/
+custom_components/aigosmart/
 ├── __init__.py      — Entry setup, token refresh/persistence, device sync, services
 ├── alibaba_api.py   — Full API client: login flow, device list, property get/set, TSL fetch
 ├── brand/           — Integration icons for HA 2026.3+ (icon.png, icon@2x.png)
@@ -66,7 +66,7 @@ tests/test_light.py          — Light platform unit tests (plain pytest, HA moc
 ## Key Technical Details
 
 - **Token refresh**: iotToken expires (default 7200s). Refreshed automatically every hour via `refreshToken` or full re-login as fallback.
-- **Device sync**: New devices auto-detected every 5 minutes. Manual sync via `aigostar.sync_devices` service.
+- **Device sync**: New devices auto-detected every 5 minutes. Manual sync via `aigosmart.sync_devices` service.
 - **Polling interval**: 30 seconds (`SCAN_INTERVAL_SECONDS` in const.py).
 - **EU region**: All endpoints use eu-central-1. Region is resolved dynamically via the region API.
 - **OA login quirk**: `oauthPlateform` must be integer `23`, not string. Field name is intentionally misspelled (matches the API).
@@ -83,7 +83,7 @@ Versioning is manual and done locally by Claude; CI only publishes.
 **When the user says "new major version", "new minor version" or "new patch version"**, do exactly this:
 
 1. Make sure the release commit will contain only the manifest bump — stash or set aside any unrelated pending changes first
-2. Read the current version from `custom_components/aigostar/manifest.json`
+2. Read the current version from `custom_components/aigosmart/manifest.json`
 3. Bump the requested part (semver): major → `X+1.0.0`, minor → `X.Y+1.0`, patch → `X.Y.Z+1`
 4. Write the new version into `manifest.json`
 5. Commit only that file with the message `chore(release): vX.Y.Z`
@@ -95,7 +95,7 @@ Versioning is manual and done locally by Claude; CI only publishes.
 
 When the tag reaches GitHub, `.github/workflows/release.yml`:
 - verifies the tag matches the manifest version (fails otherwise)
-- builds `aigostar.zip` from `custom_components/aigostar/` — the HACS artifact (`zip_release` + `filename` in hacs.json point HACS at this release asset)
+- builds `aigosmart.zip` from `custom_components/aigosmart/` — the HACS artifact (`zip_release` + `filename` in hacs.json point HACS at this release asset)
 - creates the GitHub Release with auto-generated notes: commit list and full-changelog diff link since the previous release
 
 No PAT/secret is required: the workflow never pushes commits, so the default `GITHUB_TOKEN` is enough.
@@ -107,7 +107,7 @@ python3 -c "f=open('/tmp/.sshpw','w'); f.write('YOUR_PASSWORD'); f.close()"
 
 # Sync files to HA
 sshpass -f /tmp/.sshpw rsync -av -e "ssh -o PreferredAuthentications=password -o StrictHostKeyChecking=no" \
-  custom_components/aigostar/ USER@HA_IP:/config/custom_components/aigostar/
+  custom_components/aigosmart/ USER@HA_IP:/config/custom_components/aigosmart/
 
 # Restart HA via API
 curl -s -X POST -H "Authorization: Bearer YOUR_TOKEN" \
@@ -123,7 +123,7 @@ curl -X POST -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json
 
 # Call sync service
 curl -X POST -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" \
-  -d '{}' http://HA_IP:8123/api/services/aigostar/sync_devices
+  -d '{}' http://HA_IP:8123/api/services/aigosmart/sync_devices
 ```
 
 ## Language
@@ -149,9 +149,9 @@ messages, service names/descriptions, entity names via translation keys):
    import json
    def keys(d, p=''):
        return {f'{p}.{k}' for k in d} | {x for k, v in d.items() if isinstance(v, dict) for x in keys(v, f'{p}.{k}')}
-   ref = keys(json.load(open('custom_components/aigostar/strings.json')))
+   ref = keys(json.load(open('custom_components/aigosmart/strings.json')))
    for lang in ('en', 'it', 'fr', 'es', 'de'):
-       got = keys(json.load(open(f'custom_components/aigostar/translations/{lang}.json')))
+       got = keys(json.load(open(f'custom_components/aigosmart/translations/{lang}.json')))
        assert got == ref, (lang, ref ^ got)
    print('translations OK')"
    ```

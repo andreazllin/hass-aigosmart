@@ -62,14 +62,14 @@ async def async_setup_entry(
             app_key=entry_data["app_key"],
             app_secret=entry_data["app_secret"],
         )
-        entities.append(AigostarKettle(client, iot_id, nick, online=(status == 1), raw_device=dev))
+        entities.append(AigosmartKettle(client, iot_id, nick, online=(status == 1), raw_device=dev))
 
     register_for_token_refresh(hass, entry, entities)
-    _LOGGER.info("Aigostar: creating %d kettle entities", len(entities))
+    _LOGGER.info("Aigosmart: creating %d kettle entities", len(entities))
     async_add_entities(entities, update_before_add=True)
 
 
-class AigostarKettle(WaterHeaterEntity):
+class AigosmartKettle(WaterHeaterEntity):
     """Aigostar smart kettle."""
 
     _attr_has_entity_name = True
@@ -135,7 +135,7 @@ class AigostarKettle(WaterHeaterEntity):
             self._is_on = bool(props.get(PROP_KETTLE_SWITCH))
             self._available = True
         except Exception as exc:
-            _LOGGER.warning("Aigostar kettle [%s] update failed: %s", self._attr_unique_id, exc)
+            _LOGGER.warning("Aigosmart kettle [%s] update failed: %s", self._attr_unique_id, exc)
             self._available = False
 
     def set_temperature(self, **kwargs: Any) -> None:
@@ -146,18 +146,18 @@ class AigostarKettle(WaterHeaterEntity):
             self._client.set_properties_sync({PROP_KETTLE_TARGET: int(temp)})
             self._target_temp = temp
         except Exception as exc:
-            _LOGGER.error("Aigostar kettle [%s] set_temperature failed: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart kettle [%s] set_temperature failed: %s", self._attr_unique_id, exc)
 
     def turn_on(self, **kwargs: Any) -> None:
         try:
             self._client.set_properties_sync({PROP_KETTLE_SWITCH: 1})
             self._is_on = True
         except Exception as exc:
-            _LOGGER.error("Aigostar kettle [%s] turn_on failed: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart kettle [%s] turn_on failed: %s", self._attr_unique_id, exc)
 
     def turn_off(self, **kwargs: Any) -> None:
         try:
             self._client.set_properties_sync({PROP_KETTLE_SWITCH: 0})
             self._is_on = False
         except Exception as exc:
-            _LOGGER.error("Aigostar kettle [%s] turn_off failed: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart kettle [%s] turn_off failed: %s", self._attr_unique_id, exc)

@@ -24,7 +24,7 @@ jobs:
       - name: Ensure tag matches manifest version
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
-          MANIFEST_VERSION=$(python3 -c "import json; print(json.load(open('custom_components/aigostar/manifest.json'))['version'])")
+          MANIFEST_VERSION=$(python3 -c "import json; print(json.load(open('custom_components/aigosmart/manifest.json'))['version'])")
           if [ "$TAG_VERSION" != "$MANIFEST_VERSION" ]; then
             echo "::error::Tag ${GITHUB_REF_NAME} does not match manifest.json version ${MANIFEST_VERSION} — retag after bumping the manifest"
             exit 1
@@ -33,8 +33,8 @@ jobs:
       - name: Build integration archive
         id: build
         run: |
-          ZIP_PATH="$RUNNER_TEMP/aigostar.zip"
-          cd custom_components/aigostar
+          ZIP_PATH="$RUNNER_TEMP/aigosmart.zip"
+          cd custom_components/aigosmart
           zip -r "$ZIP_PATH" . -x "__pycache__/*" -x "*.pyc"
           echo "zip_path=$ZIP_PATH" >> "$GITHUB_OUTPUT"
           unzip -l "$ZIP_PATH"

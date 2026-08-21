@@ -43,13 +43,13 @@ async def async_setup_entry(
             app_key=entry_data["app_key"],
             app_secret=entry_data["app_secret"],
         )
-        entities.append(AigostarFanTimer(client, iot_id, nick))
+        entities.append(AigosmartFanTimer(client, iot_id, nick))
 
     register_for_token_refresh(hass, entry, entities)
     async_add_entities(entities, update_before_add=True)
 
 
-class AigostarFanTimer(NumberEntity):
+class AigosmartFanTimer(NumberEntity):
     """Auto-off timer for an Aigostar fan."""
 
     _attr_has_entity_name = True
@@ -87,7 +87,7 @@ class AigostarFanTimer(NumberEntity):
                 self._value = int(props[PROP_FAN_TIMER])
             self._available = True
         except Exception as exc:
-            _LOGGER.warning("Aigostar timer update failed: %s", exc)
+            _LOGGER.warning("Aigosmart timer update failed: %s", exc)
             self._available = False
 
     def set_native_value(self, value: float) -> None:

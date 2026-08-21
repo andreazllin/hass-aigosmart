@@ -230,7 +230,7 @@ class ProductProfile:
 # the product keeps working even when /thing/tsl/get is unavailable or the
 # account's token has expired at setup time.
 #
-# To add a product: call the `aigostar.dump_tsl` service and copy the snippet
+# To add a product: call the `aigosmart.dump_tsl` service and copy the snippet
 # from the "resolved colour profile" line in home-assistant.log.
 KNOWN_PRODUCT_PROFILES: dict[str, ProductProfile] = {
     # Aigostar "Downlight RGB CCT" (Bluetooth Mesh, behind the Smart Mesh Gw).
@@ -362,7 +362,7 @@ def color_spec_from_tsl(tsl: dict[str, Any]) -> ColorSpec | None:
             members=members,
             maxima=maxima,
         )
-        _LOGGER.debug("Aigostar: colour property found in TSL: %s", spec)
+        _LOGGER.debug("Aigosmart: colour property found in TSL: %s", spec)
         return spec
     return None
 
@@ -404,7 +404,7 @@ def color_spec_from_props(props: dict[str, Any]) -> ColorSpec | None:
             members=members,
             maxima=maxima,
         )
-        _LOGGER.debug("Aigostar: colour property inferred from live properties: %s", spec)
+        _LOGGER.debug("Aigosmart: colour property inferred from live properties: %s", spec)
         return spec
     return None
 
@@ -429,7 +429,7 @@ def mode_spec_from_tsl(tsl: dict[str, Any], fallback_identifier: str) -> ModeSpe
             continue
         if len(specs) > _MAX_LIGHT_MODE_ENUM_SIZE:
             _LOGGER.debug(
-                "Aigostar: ignoring '%s' as light mode — %d enum values, "
+                "Aigosmart: ignoring '%s' as light mode — %d enum values, "
                 "this is a scene selector",
                 identifier, len(specs),
             )
@@ -454,7 +454,7 @@ def mode_spec_from_tsl(tsl: dict[str, Any], fallback_identifier: str) -> ModeSpe
                 white_value=white_value if white_value is not None else 0,
                 color_value=color_value,
             )
-            _LOGGER.debug("Aigostar: light-mode property found in TSL: %s", spec)
+            _LOGGER.debug("Aigosmart: light-mode property found in TSL: %s", spec)
             return spec
 
     return ModeSpec(identifier=fallback_identifier)

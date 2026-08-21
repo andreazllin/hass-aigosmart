@@ -1,6 +1,6 @@
 """Constants for the Aigostar integration."""
 
-DOMAIN = "aigostar"
+DOMAIN = "aigosmart"
 
 # Alibaba Cloud IoT EU endpoint
 ALIBABA_IOT_HOST = "eu-central-1.api-iot.aliyuncs.com"

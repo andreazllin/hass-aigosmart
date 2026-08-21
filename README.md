@@ -1,4 +1,4 @@
-# Aigostar Smart Lights for Home Assistant
+# Aigosmart for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/andreazllin/hass-aigosmart?style=for-the-badge)](https://github.com/andreazllin/hass-aigosmart/releases)
@@ -11,7 +11,7 @@ Control your Aigostar lights directly from Home Assistant — no local flashing 
 
 - **Automatic device discovery** — all bulbs linked to your AigoSmart account are added automatically
 - **Periodic device sync** — new bulbs added via the AigoSmart app are detected every 5 minutes
-- **Manual sync service** — `aigostar.sync_devices` to force device re-discovery
+- **Manual sync service** — `aigosmart.sync_devices` to force device re-discovery
 - **Automatic token refresh** — iotToken is renewed before expiration
 - **Brightness control** (1–100%)
 - **Color temperature** (2700K warm – 6500K cool)
@@ -60,30 +60,30 @@ Click the button above, or manually:
 2. Go to **Integrations** → **⋮** (top right) → **Custom repositories**
 3. Add this repository URL: `https://github.com/andreazllin/hass-aigosmart`
 4. Select **Integration** as the category
-5. Click **Add**, then find **Aigostar Smart Lights** in the list and install it
+5. Click **Add**, then find **Aigosmart** in the list and install it
 6. Restart Home Assistant
 
 ### Manual
 
 1. Download or clone this repository
-2. Copy the `custom_components/aigostar` folder to your Home Assistant `config/custom_components/` directory
+2. Copy the `custom_components/aigosmart` folder to your Home Assistant `config/custom_components/` directory
 3. Restart Home Assistant
 
 ## Configuration
 
-[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=aigostar)
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=aigosmart)
 
 Or manually:
 
 1. Go to **Settings** → **Devices & Services** → **Add Integration**
-2. Search for **Aigostar Smart Lights**
+2. Search for **Aigosmart**
 3. Enter your **AigoSmart** account email and password
 4. If the server requests a verification code, enter the code sent to your email
 5. All bulbs linked to your account will be discovered automatically
 
 ## Services
 
-### `aigostar.sync_devices`
+### `aigosmart.sync_devices`
 
 Force re-discovery of all devices from your Aigostar account. New devices are added automatically. You can call this service from:
 
@@ -113,7 +113,7 @@ Device control is performed via the same API gateway used by the AigoSmart app.
 - Check that the bulb works in the AigoSmart app first
 
 ### New bulbs not appearing
-- Wait up to 5 minutes for auto-sync, or call `aigostar.sync_devices`
+- Wait up to 5 minutes for auto-sync, or call `aigosmart.sync_devices`
 - You can also reload the integration: **Settings** → **Integrations** → **Aigostar** → **⋮** → **Reload**
 
 ## Disclaimer

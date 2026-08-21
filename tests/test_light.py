@@ -49,7 +49,7 @@ sys.modules["homeassistant.data_entry_flow"] = MagicMock()
 # Ensure the custom_components directory is in the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from custom_components.aigostar.const import (
+from custom_components.aigosmart.const import (
     DOMAIN,
     PROP_SWITCH,
     PROP_BRIGHTNESS,
@@ -60,7 +60,7 @@ from custom_components.aigostar.const import (
     PROP_MESH_COLOR_TEMP,
     PROP_MESH_LIGHT_MODE,
 )
-from custom_components.aigostar.light import AigostarLight, async_setup_entry
+from custom_components.aigosmart.light import AigosmartLight, async_setup_entry
 
 
 def test_wifi_light_properties():
@@ -72,7 +72,7 @@ def test_wifi_light_properties():
         "firmwareVersion": "1.0.0"
     }
 
-    light = AigostarLight(client, "test_iot_id", "My WiFi Bulb", online=True, raw_device=raw_device)
+    light = AigosmartLight(client, "test_iot_id", "My WiFi Bulb", online=True, raw_device=raw_device)
 
     # Check initialized state
     assert not light._is_bt
@@ -114,7 +114,7 @@ def test_bt_mesh_light_properties():
         "firmwareVersion": "1.0.0"
     }
 
-    light = AigostarLight(client, "test_iot_id", "My Mesh Bulb", online=True, raw_device=raw_device)
+    light = AigosmartLight(client, "test_iot_id", "My Mesh Bulb", online=True, raw_device=raw_device)
 
     # Check initialized state
     assert light._is_bt
@@ -193,7 +193,7 @@ def test_wifi_light_hs_color():
     client = MagicMock()
     raw_device = {"netType": "NET_WIFI", "productName": "WiFi RGBCCT Bulb"}
 
-    light = AigostarLight(
+    light = AigosmartLight(
         client, "wifi_rgb", "RGB Bulb", online=True,
         raw_device=raw_device, tsl=WIFI_COLOR_TSL,
     )
@@ -230,7 +230,7 @@ def test_mode_switch_is_written_after_the_colour_it_activates():
     # gateway apply the mode first, which makes the bulb flash its previously
     # stored colour. The mode must therefore be a separate, later write.
     client = MagicMock()
-    light = AigostarLight(
+    light = AigosmartLight(
         client, "wifi_rgb2", "RGB Bulb", online=True,
         raw_device={"netType": "NET_WIFI"}, tsl=WIFI_COLOR_TSL,
     )
@@ -254,7 +254,7 @@ def test_mode_switch_is_written_after_the_colour_it_activates():
 
 
 def test_known_product_profile_short_circuits_tsl_detection():
-    from custom_components.aigostar.color_model import (
+    from custom_components.aigosmart.color_model import (
         ColorSpec,
         ModeSpec,
         ProductProfile,
@@ -274,7 +274,7 @@ def test_known_product_profile_short_circuits_tsl_detection():
     try:
         client = MagicMock()
         # No TSL passed at all — the pinned profile supplies the capability
-        light = AigostarLight(
+        light = AigosmartLight(
             client, "pinned", "Pinned Bulb", online=True,
             raw_device={"netType": "NET_BT", "productKey": "pk_test"},
         )
@@ -297,7 +297,7 @@ def test_bt_mesh_light_hs_color_scales_16bit():
     client = MagicMock()
     raw_device = {"netType": "NET_BT", "productName": "Mesh RGB Bulb"}
 
-    light = AigostarLight(
+    light = AigosmartLight(
         client, "mesh_rgb", "Mesh RGB Bulb", online=True,
         raw_device=raw_device, tsl=MESH_COLOR_TSL,
     )
@@ -344,7 +344,7 @@ def test_color_spec_detected_from_live_properties_when_tsl_missing():
     client = MagicMock()
     raw_device = {"netType": "NET_BT", "productName": "Mesh RGB Bulb"}
 
-    light = AigostarLight(client, "mesh_no_tsl", "Mesh Bulb", online=True, raw_device=raw_device)
+    light = AigosmartLight(client, "mesh_no_tsl", "Mesh Bulb", online=True, raw_device=raw_device)
     assert light._attr_supported_color_modes == {DummyColorMode.COLOR_TEMP}
 
     light._apply_props({
@@ -367,7 +367,7 @@ def test_color_spec_detected_from_live_properties_when_tsl_missing():
 def test_struct_property_returned_as_json_string():
     # Some devices report struct properties as JSON strings rather than objects
     client = MagicMock()
-    light = AigostarLight(
+    light = AigosmartLight(
         client, "wifi_rgb_str", "RGB Bulb", online=True,
         raw_device={"netType": "NET_WIFI"}, tsl=WIFI_COLOR_TSL,
     )
@@ -386,7 +386,7 @@ def test_light_without_color_support_is_unchanged():
     client = MagicMock()
     tsl = {"properties": [{"identifier": "Brightness", "dataType": {"type": "int"}}]}
 
-    light = AigostarLight(
+    light = AigosmartLight(
         client, "white_only", "White Bulb", online=True,
         raw_device={"netType": "NET_BT"}, tsl=tsl,
     )
@@ -449,7 +449,7 @@ def test_scene_enum_is_not_mistaken_for_the_light_mode_switch():
     # "mode" here selects an animation (spring, rainbow, strobe...). Writing to
     # it would start an effect rather than switch between white and colour.
     client = MagicMock()
-    light = AigostarLight(
+    light = AigosmartLight(
         client, "downlight", "Downlight", online=True,
         raw_device={"netType": "NET_BT"}, tsl=DOWNLIGHT_RGBCCT_TSL,
     )
@@ -472,7 +472,7 @@ def test_scene_enum_is_not_mistaken_for_the_light_mode_switch():
 def test_pinned_downlight_profile_matches_the_tsl():
     # The shipped profile for the real product must agree with what detection
     # derives from that product's TSL, so pinning cannot silently drift.
-    from custom_components.aigostar.color_model import (
+    from custom_components.aigosmart.color_model import (
         KNOWN_PRODUCT_PROFILES,
         color_spec_from_tsl,
         mode_spec_from_tsl,
@@ -487,7 +487,7 @@ def test_tsl_is_fetched_by_iot_id_once_per_product():
     # /thing/tsl/get keys off iotId — passing productKey fails with code 20050
     # "iotId required". The model is still per product, so fetch it once per
     # productKey using any one of that product's devices.
-    from custom_components.aigostar.light import _async_load_tsl_models
+    from custom_components.aigosmart.light import _async_load_tsl_models
 
     calls = []
 
@@ -513,7 +513,7 @@ def test_tsl_is_fetched_by_iot_id_once_per_product():
     assert set(models) == {"pk_shared", "pk_other", "dev_c1"}
 
 
-@patch("custom_components.aigostar.light.AlibabaIoTClient")
+@patch("custom_components.aigosmart.light.AlibabaIoTClient")
 def test_async_setup_entry_skips_gateway(mock_client_class):
     # Test async_setup_entry filters out gateway devices and creates other light entities
     hass = MagicMock()

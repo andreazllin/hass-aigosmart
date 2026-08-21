@@ -102,7 +102,7 @@ async def _async_load_tsl_models(
             )
         except Exception as exc:
             _LOGGER.warning(
-                "Aigostar: TSL model fetch failed for %s (product %s): %s — "
+                "Aigosmart: TSL model fetch failed for %s (product %s): %s — "
                 "colour support will be detected from live properties instead",
                 iot_id, dev.get("productKey"), exc,
             )
@@ -146,7 +146,7 @@ async def async_setup_entry(
             app_secret=app_secret,
         )
         entities.append(
-            AigostarLight(
+            AigosmartLight(
                 client, iot_id, nick,
                 online=(status == 1),
                 raw_device=dev,
@@ -158,11 +158,11 @@ async def async_setup_entry(
     # Register entities for token refresh (append: other platforms share this list)
     register_for_token_refresh(hass, entry, entities)
 
-    _LOGGER.info("Aigostar: creating %d light entities", len(entities))
+    _LOGGER.info("Aigosmart: creating %d light entities", len(entities))
     async_add_entities(entities, update_before_add=True)
 
 
-class AigostarLight(LightEntity):
+class AigosmartLight(LightEntity):
     """Aigostar smart bulb."""
 
     _attr_has_entity_name = True
@@ -214,7 +214,7 @@ class AigostarLight(LightEntity):
         self._spec_source = "pinned" if profile else "TSL"
         self._attr_supported_color_modes = self._build_supported_color_modes()
         if self._color_spec is not None:
-            _LOGGER.info("Aigostar %s", self.describe_color_profile())
+            _LOGGER.info("Aigosmart %s", self.describe_color_profile())
 
         self._is_on:        bool = False
         self._brightness:   int  = 255
@@ -228,7 +228,7 @@ class AigostarLight(LightEntity):
         self._skip_until:   float = 0.0  # Unix timestamp; skip polls until then
 
         _LOGGER.debug(
-            "Aigostar [%s] Initialized light entity. Name: '%s', is_bt: %s, netType: '%s', "
+            "Aigosmart [%s] Initialized light entity. Name: '%s', is_bt: %s, netType: '%s', "
             "color_spec: %s, mode_spec: %s, raw_device: %s",
             iot_id, name, self._is_bt, raw.get("netType"),
             self._color_spec, self._mode_spec, raw,
@@ -328,7 +328,7 @@ class AigostarLight(LightEntity):
         self._color_spec = spec
         self._spec_source = "live properties (ranges are inferred, not declared)"
         self._attr_supported_color_modes = self._build_supported_color_modes()
-        _LOGGER.info("Aigostar %s", self.describe_color_profile())
+        _LOGGER.info("Aigosmart %s", self.describe_color_profile())
 
     @staticmethod
     def _pick_key(props: dict, candidates: tuple[str, ...], current: str) -> str:
@@ -351,7 +351,7 @@ class AigostarLight(LightEntity):
 
     def _apply_props(self, props: dict) -> None:
         _LOGGER.debug(
-            "Aigostar [%s] Applying properties (is_bt=%s): %s",
+            "Aigosmart [%s] Applying properties (is_bt=%s): %s",
             self._attr_unique_id, self._is_bt, props,
         )
         self._ensure_color_spec(props)
@@ -360,7 +360,7 @@ class AigostarLight(LightEntity):
         if self._prop_switch in props:
             self._is_on = bool(props[self._prop_switch])
             _LOGGER.debug(
-                "Aigostar [%s] Parsed is_on: %s (from key '%s' value %s)",
+                "Aigosmart [%s] Parsed is_on: %s (from key '%s' value %s)",
                 self._attr_unique_id, self._is_on, self._prop_switch,
                 props[self._prop_switch],
             )
@@ -387,7 +387,7 @@ class AigostarLight(LightEntity):
                 self._hs_color = hs
                 color_brightness_pct = self._color_spec.to_brightness_pct(raw_color)
                 _LOGGER.debug(
-                    "Aigostar [%s] Parsed hs_color: %s (from key '%s' value %s)",
+                    "Aigosmart [%s] Parsed hs_color: %s (from key '%s' value %s)",
                     self._attr_unique_id, self._hs_color,
                     self._color_spec.identifier, raw_color,
                 )
@@ -398,7 +398,7 @@ class AigostarLight(LightEntity):
         elif self._prop_brightness in props:
             self._brightness = self._aigo_to_ha_brightness(int(props[self._prop_brightness]))
             _LOGGER.debug(
-                "Aigostar [%s] Parsed brightness: %s (from key '%s' value %s)",
+                "Aigosmart [%s] Parsed brightness: %s (from key '%s' value %s)",
                 self._attr_unique_id, self._brightness, self._prop_brightness,
                 props[self._prop_brightness],
             )
@@ -406,7 +406,7 @@ class AigostarLight(LightEntity):
         if self._prop_color_temp in props:
             self._color_temp_k = self._aigo_to_kelvin(int(props[self._prop_color_temp]))
             _LOGGER.debug(
-                "Aigostar [%s] Parsed color_temp: %s K (from key '%s' value %s)",
+                "Aigosmart [%s] Parsed color_temp: %s K (from key '%s' value %s)",
                 self._attr_unique_id, self._color_temp_k, self._prop_color_temp,
                 props[self._prop_color_temp],
             )
@@ -422,7 +422,7 @@ class AigostarLight(LightEntity):
         if force_refresh:
             self.hass.add_job(force_refresh())
         else:
-            _LOGGER.debug("Aigostar [%s]: no force_refresh available", self._attr_unique_id)
+            _LOGGER.debug("Aigosmart [%s]: no force_refresh available", self._attr_unique_id)
 
     def update(self) -> None:
         if time.time() < self._skip_until:
@@ -433,13 +433,13 @@ class AigostarLight(LightEntity):
             self._available = True
         except TokenExpiredError as exc:
             _LOGGER.warning(
-                "Aigostar [%s] token expired during poll, triggering refresh: %s",
+                "Aigosmart [%s] token expired during poll, triggering refresh: %s",
                 self._attr_unique_id, exc,
             )
             self._available = False
             self._trigger_token_refresh()
         except Exception as exc:
-            _LOGGER.warning("Aigostar [%s] update failed: %s", self._attr_unique_id, exc)
+            _LOGGER.warning("Aigosmart [%s] update failed: %s", self._attr_unique_id, exc)
             self._available = False
 
     # ------------------------------------------------------------------
@@ -455,7 +455,7 @@ class AigostarLight(LightEntity):
 
     def turn_on(self, **kwargs: Any) -> None:
         _LOGGER.debug(
-            "Aigostar [%s] turn_on called with kwargs: %s (is_bt=%s)",
+            "Aigosmart [%s] turn_on called with kwargs: %s (is_bt=%s)",
             self._attr_unique_id, kwargs, self._is_bt,
         )
         try:
@@ -502,7 +502,7 @@ class AigostarLight(LightEntity):
                 self._color_mode = ColorMode.COLOR_TEMP
 
             _LOGGER.debug(
-                "Aigostar [%s] Sending set_properties_sync (is_bt=%s): %s (pending_mode=%s)",
+                "Aigosmart [%s] Sending set_properties_sync (is_bt=%s): %s (pending_mode=%s)",
                 self._attr_unique_id, self._is_bt, items, pending_mode,
             )
             self._client.set_properties_sync(items)
@@ -510,7 +510,7 @@ class AigostarLight(LightEntity):
             if pending_mode is not None:
                 mode_items = {self._mode_spec.identifier: pending_mode}
                 _LOGGER.debug(
-                    "Aigostar [%s] Sending light-mode switch: %s",
+                    "Aigosmart [%s] Sending light-mode switch: %s",
                     self._attr_unique_id, mode_items,
                 )
                 self._client.set_properties_sync(mode_items)
@@ -521,22 +521,22 @@ class AigostarLight(LightEntity):
 
         except TokenExpiredError as exc:
             _LOGGER.warning(
-                "Aigostar [%s] token expired during turn_on, triggering refresh: %s",
+                "Aigosmart [%s] token expired during turn_on, triggering refresh: %s",
                 self._attr_unique_id, exc,
             )
             self._available = False
             self._trigger_token_refresh()
 
         except Exception as exc:
-            _LOGGER.error("Aigostar turn_on failed [%s]: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart turn_on failed [%s]: %s", self._attr_unique_id, exc)
             self._available = False
 
     def turn_off(self, **kwargs: Any) -> None:
-        _LOGGER.debug("Aigostar [%s] turn_off called (is_bt=%s)", self._attr_unique_id, self._is_bt)
+        _LOGGER.debug("Aigosmart [%s] turn_off called (is_bt=%s)", self._attr_unique_id, self._is_bt)
         try:
             items = {self._prop_switch: 0}
             _LOGGER.debug(
-                "Aigostar [%s] Sending set_properties_sync for off (is_bt=%s): %s",
+                "Aigosmart [%s] Sending set_properties_sync for off (is_bt=%s): %s",
                 self._attr_unique_id, self._is_bt, items,
             )
             self._client.set_properties_sync(items)
@@ -545,11 +545,11 @@ class AigostarLight(LightEntity):
             self._skip_until = time.time() + _POST_COMMAND_SKIP_SECS
         except TokenExpiredError as exc:
             _LOGGER.warning(
-                "Aigostar [%s] token expired during turn_off, triggering refresh: %s",
+                "Aigosmart [%s] token expired during turn_off, triggering refresh: %s",
                 self._attr_unique_id, exc,
             )
             self._available = False
             self._trigger_token_refresh()
         except Exception as exc:
-            _LOGGER.error("Aigostar turn_off failed [%s]: %s", self._attr_unique_id, exc)
+            _LOGGER.error("Aigosmart turn_off failed [%s]: %s", self._attr_unique_id, exc)
             self._available = False

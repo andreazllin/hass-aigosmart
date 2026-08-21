@@ -69,15 +69,15 @@ async def async_setup_entry(
             app_secret=entry_data["app_secret"],
         )
         entities.append(
-            AigostarFan(client, iot_id, nick.strip(), dev.get("status", 0) == 1, dev)
+            AigosmartFan(client, iot_id, nick.strip(), dev.get("status", 0) == 1, dev)
         )
 
     register_for_token_refresh(hass, entry, entities)
-    _LOGGER.info("Aigostar: creating %d fan entities", len(entities))
+    _LOGGER.info("Aigosmart: creating %d fan entities", len(entities))
     async_add_entities(entities, update_before_add=True)
 
 
-class AigostarFan(FanEntity):
+class AigosmartFan(FanEntity):
     """Aigostar smart fan."""
 
     _attr_has_entity_name = True
@@ -175,7 +175,7 @@ class AigostarFan(FanEntity):
             self._apply_props(self._client.get_properties_sync())
             self._available = True
         except Exception as exc:
-            _LOGGER.warning("Aigostar fan [%s] update failed: %s", self._attr_unique_id, exc)
+            _LOGGER.warning("Aigosmart fan [%s] update failed: %s", self._attr_unique_id, exc)
             self._available = False
 
     # ------------------------------------------------------------------
