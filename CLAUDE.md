@@ -94,6 +94,7 @@ Versioning is manual and done locally by Claude; CI only publishes.
    after tagging — this publishes the release, so never infer it
 
 When the tag reaches GitHub, `.github/workflows/release.yml`:
+- runs the full validation suite first (validate.yml as a reusable workflow: HACS, hassfest, Python syntax) — if validation fails, nothing is released
 - verifies the tag matches the manifest version (fails otherwise)
 - builds `aigosmart.zip` from `custom_components/aigosmart/` — the HACS artifact (`zip_release` + `filename` in hacs.json point HACS at this release asset)
 - creates the GitHub Release with auto-generated notes: commit list and full-changelog diff link since the previous release

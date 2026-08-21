@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Reusable: release.yml runs this as a gate before publishing
+  workflow_call:
 
 jobs:
   hacs:

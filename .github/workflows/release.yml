@@ -2,9 +2,10 @@ name: Release
 
 # Versioning is manual (see "Release Process" in CLAUDE.md): the release
 # commit `chore(release): vX.Y.Z` and the `vX.Y.Z` tag are created locally,
-# then pushed. This workflow reacts to the tag push: it builds the HACS zip
-# and publishes the GitHub Release with auto-generated notes (commit list +
-# full-changelog diff since the previous release).
+# then pushed. This workflow reacts to the tag push: it validates the tagged
+# commit (same checks as validate.yml), then builds the HACS zip and publishes
+# the GitHub Release with auto-generated notes (commit list + full-changelog
+# diff since the previous release). If validation fails, nothing is released.
 
 on:
   push:
@@ -14,8 +15,13 @@ permissions:
   contents: write
 
 jobs:
+  validate:
+    name: Validate
+    uses: ./.github/workflows/validate.yml
+
   release:
     name: Publish Release
+    needs: validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
